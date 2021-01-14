@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Golly</string>
+	<string name="author" translatable="false">Dobando</string>
+	<string name="pause">Pause</string>
+	<string name="start">Start</string>
+	<string name="clear">Clear</string>
+	<string name="reset">Reset</string>
+	<string name="stop">Stop</string>
+	<string name="coordinate_x">X Coordinate</string>
+	<string name="coordinate_y">Y Coordinate</string>
+    <string name="add_cell">Add Cell</string>
+</resources>

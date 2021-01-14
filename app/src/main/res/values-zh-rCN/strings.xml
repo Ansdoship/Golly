@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">誓命</string>
+    <string name="start">开始</string>
+    <string name="clear">清除</string>
+    <string name="reset">重置</string>
+    <string name="pause">暂停</string>
+    <string name="stop">停止</string>
+    <string name="coordinate_x">X坐标</string>
+    <string name="coordinate_y">Y坐标</string>
+    <string name="add_cell">添加细胞</string>
+</resources>
