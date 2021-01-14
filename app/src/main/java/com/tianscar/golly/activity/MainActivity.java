@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
 	private EditText etCoordinateX;
 	private EditText etCoordinateY;
 	private Button btnAddCell;
+	private StringBuilder gameInfoBuilder;
+
+	private boolean isGameRendering;
 
 	private final View.OnClickListener clickListener = new View.OnClickListener() {
 		@SuppressLint("NonConstantResourceId")
@@ -40,10 +43,10 @@ public class MainActivity extends AppCompatActivity {
 					gameView.startGame();
 					break;
 				case R.id.btn_clear:
-					gameView.clear();
+					gameView.getLand().clear();
 					break;
 				case R.id.btn_reset:
-					gameView.reset();
+					gameView.getLand().init();
 					break;
 				case R.id.btn_add_cell:
 					break;
@@ -72,9 +75,60 @@ public class MainActivity extends AppCompatActivity {
         etCoordinateY = findViewById(R.id.et_coordinate_y);
         btnAddCell = findViewById(R.id.btn_add_cell);
         btnAddCell.setOnClickListener(clickListener);
+
         gameView = new GameView(this);
         container.addView(gameView);
+        gameInfoBuilder = new StringBuilder();
+
+        gameView.setOnInvalidateListener(new GameView.OnInvalidateListener() {
+			@Override
+			public void onInvalidate() {
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						gameInfoBuilder.setLength(0);
+						gameInfoBuilder
+								.append(getResources().getString(R.string.authors))
+								.append(": ")
+								.append(getResources().getString(R.string.dobando))
+								.append(" & ")
+								.append(getResources().getString(R.string.tianscar))
+								.append("\n")
+								.append(getResources().getString(R.string.day_count))
+								.append(": ")
+								.append(gameView.getLand().getDayCount())
+								.append("\n")
+								.append(getResources().getString(R.string.FPS))
+								.append(": ")
+								.append(gameView.getFPS())
+								.append("\n")
+								.append(getResources().getString(R.string.free_space))
+								.append(": ")
+								.append(gameView.getLand().getDeadCellCount())
+								.append("\n")
+								.append(getResources().getString(R.string.alive_cell_count))
+								.append(": ")
+								.append(gameView.getLand().getAliveCellCount());
+						tvGameInfo.setText(gameInfoBuilder.toString());
+					}
+				});
+			}
+		});
+        gameView.startGame();
+		isGameRendering = true;
     }
-	
+
+	@Override
+	protected void onPause() {
+    	isGameRendering = gameView.isGameRendering();
+		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		gameView.setGameRendering(isGameRendering);
+	}
+
 }
 

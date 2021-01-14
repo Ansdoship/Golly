@@ -54,7 +54,7 @@ public class Land {
 
 	public void invalidate () {
 		dayCount ++;
-		aliveCellCount = 0;
+		int aliveCellCount = 0;
 		Land stepLand = new Land(width, height, ALIVE_PROBABILITY_ALL_DEAD);
 		for (int x = 0; x < width; x ++)
 		{
@@ -63,8 +63,7 @@ public class Land {
 				Cell cell = getCell(x, y);
 				Cell stepCell = stepLand.getCell(x, y);
 				int n = getPosCellCount(x, y);
-				if (cell.getState() == 1)
-				{
+				if (cell.getState() == 1) {
 					aliveCellCount ++;
 					if (n < 2) {
 						stepCell.die();
@@ -87,7 +86,7 @@ public class Land {
 			}
 		}
 		this.cellMap = stepLand.cellMap;
-		stepLand = null;
+		this.aliveCellCount = aliveCellCount;
 	}
 
 	public void clear () {

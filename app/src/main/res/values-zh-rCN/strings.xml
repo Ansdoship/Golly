@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">誓命</string>
+    <string name="app_name">誓言细胞</string>
     <string name="start">开始</string>
     <string name="clear">清除</string>
     <string name="reset">重置</string>
@@ -9,4 +9,10 @@
     <string name="coordinate_x">X坐标</string>
     <string name="coordinate_y">Y坐标</string>
     <string name="add_cell">添加细胞</string>
+    <string name="tianscar">碳酸天剑</string>
+    <string name="FPS">帧率</string>
+    <string name="free_space">剩余空间</string>
+    <string name="day_count">天数</string>
+    <string name="alive_cell_count">存活细胞</string>
+    <string name="authors">作者</string>
 </resources>

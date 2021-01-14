@@ -1,6 +1,7 @@
 package com.tianscar.golly.ui;
 
 import android.annotation.SuppressLint;
+import android.graphics.PixelFormat;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
@@ -14,13 +15,11 @@ import androidx.annotation.NonNull;
 
 import com.tianscar.golly.game.Cell;
 import com.tianscar.golly.game.Land;
+import com.tianscar.golly.util.FPSCounter;
 import com.tianscar.golly.util.ScreenUtils;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
-	private final String TAG = "GameView";
-	
-	private volatile int fps;
     private final SurfaceHolder mHolder;
     private volatile boolean isDraw;
     private volatile boolean threadActive;
@@ -29,6 +28,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	private int cellSize;
 	private int cellColor;
 	private int backgroundColor;
+
+	private final FPSCounter fpsCounter;
+
+	private OnInvalidateListener onInvalidateListener;
+
+	public interface OnInvalidateListener {
+		void onInvalidate();
+	}
+
+	public void setOnInvalidateListener(OnInvalidateListener onInvalidateListener) {
+		this.onInvalidateListener = onInvalidateListener;
+	}
+
+	public OnInvalidateListener getOnInvalidateListener() {
+		return onInvalidateListener;
+	}
 
 	public GameView(Context context) {
 		this(context, null);
@@ -42,14 +57,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		super(context, attrs, defStyleAttr);
 		mHolder = getHolder();
 		mHolder.addCallback(this);
+		mHolder.setFormat(PixelFormat.TRANSLUCENT);
+		setZOrderOnTop(true);
+		setFocusable(true);
+		setFocusableInTouchMode(true);
+		setKeepScreenOn(true);
 		isDraw = false;
 		threadActive = false;
-		cellSize = 5;
-		cellColor = Color.BLACK;
-		backgroundColor = Color.WHITE;
+		setCellSize(5);
+		setCellColor(Color.BLACK);
+		setBackgroundColor(Color.WHITE);
+		fpsCounter = new FPSCounter();
 		mLand = new Land(ScreenUtils.getScreenWidth() / cellSize,
-				ScreenUtils.getScreenHeight() / cellSize / 2);
-		mHolder.setFixedSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight() / 2);
+				ScreenUtils.getScreenRealHeight() / cellSize / 2);
+		mHolder.setFixedSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenRealHeight() / 2);
 	}
 
 	@Override
@@ -58,15 +79,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-		startGame();
+		drawLand();
 		threadActive = true;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				fpsCounter.setNowFPS(System.nanoTime());
 				while (threadActive) {
 					if (isDraw) {
 						mLand.invalidate();
 						drawLand();
+						if (onInvalidateListener != null) {
+							onInvalidateListener.onInvalidate();
+						}
+						fpsCounter.countFPS();
 					}
 				}
 
@@ -82,20 +108,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void drawLand () {
         Canvas canvas = mHolder.lockCanvas();
-		Paint paint = new Paint();
-		paint.setAntiAlias(false);
-		paint.setStrokeWidth(cellSize * 0.5f);
-		paint.setColor(cellColor);
-		canvas.drawColor(backgroundColor);
-		for(int x = 0; x < mLand.getWidth(); x ++){
-			for(int y = 0; y < mLand.getHeight(); y ++){
-				Cell cell = mLand.getCell(x, y);
-				if (cell.getState() == Cell.STATE_ALIVE) {
-					canvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, paint);
+        if (canvas != null) {
+			Paint paint = new Paint();
+			paint.setAntiAlias(false);
+			paint.setStrokeWidth(cellSize * 0.5f);
+			paint.setColor(cellColor);
+			canvas.drawColor(backgroundColor);
+			for(int x = 0; x < mLand.getWidth(); x ++){
+				for(int y = 0; y < mLand.getHeight(); y ++){
+					Cell cell = mLand.getCell(x, y);
+					if (cell.getState() == Cell.STATE_ALIVE) {
+						canvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, paint);
+					}
 				}
 			}
+			mHolder.unlockCanvasAndPost(canvas);
 		}
-		mHolder.unlockCanvasAndPost(canvas);
     }
 
 	@SuppressLint("ClickableViewAccessibility")
@@ -104,15 +132,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		int strokeSize = 3;
 		int posX = (int)(event.getX() / cellSize);
 		int posY = (int)(event.getY() / cellSize);
-		if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			for (int x = posX - strokeSize; x <= posX + strokeSize; x ++) {
-				for (int y = posY - strokeSize; y <= posY + strokeSize; y ++) {
-					if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
-						mLand.getCell(x, y).alive();
+		switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_MOVE:
+				for (int x = posX - strokeSize; x <= posX + strokeSize; x ++) {
+					for (int y = posY - strokeSize; y <= posY + strokeSize; y ++) {
+						if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
+							mLand.getCell(x, y).alive();
+						}
 					}
 				}
-			}
-			drawLand();
+				break;
 		}
 		return true;
 	}
@@ -123,6 +153,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void startGame() {
 		isDraw = true;
+	}
+
+	public boolean isGameRendering() {
+		return isDraw;
+	}
+
+	public void setGameRendering(boolean isRendering) {
+		isDraw = isRendering;
 	}
 
 	public void setCellColor(int cellColor) {
@@ -154,12 +192,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		return mLand;
 	}
 
-	public void clear () {
-		mLand.clear();
-	}
-
-	public void reset() {
-		mLand.init();
+	public int getFPS() {
+		return (int) fpsCounter.getFPS();
 	}
 
 }

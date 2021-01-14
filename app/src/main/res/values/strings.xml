@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Golly</string>
-	<string name="author" translatable="false">Dobando</string>
+	<string name="dobando" translatable="false">Dobando</string>
 	<string name="pause">Pause</string>
 	<string name="start">Start</string>
 	<string name="clear">Clear</string>
@@ -10,4 +10,10 @@
 	<string name="coordinate_x">X Coordinate</string>
 	<string name="coordinate_y">Y Coordinate</string>
     <string name="add_cell">Add Cell</string>
+	<string name="tianscar">Tianscar</string>
+	<string name="FPS">FPS</string>
+	<string name="day_count">Days</string>
+	<string name="free_space">Free Space</string>
+	<string name="alive_cell_count">Alive Cells</string>
+	<string name="authors">Authors</string>
 </resources>
