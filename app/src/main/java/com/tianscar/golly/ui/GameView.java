@@ -1,7 +1,12 @@
 package com.tianscar.golly.ui;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.Path;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
@@ -12,6 +17,7 @@ import android.graphics.Color;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
+import androidx.core.math.MathUtils;
 
 import com.tianscar.golly.game.Cell;
 import com.tianscar.golly.game.Land;
@@ -24,10 +30,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private volatile boolean isDraw;
     private volatile boolean threadActive;
 
-	private final Land mLand;
+	private Land mLand;
 	private int cellSize;
 	private int cellColor;
 	private int backgroundColor;
+	private final Paint cellPaint;
+	private final static Paint eraser;
+	static {
+		eraser = new Paint();
+		eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+	}
+	private final static Paint bitmapPaint;
+	static {
+		bitmapPaint = new Paint();
+	}
+	private Bitmap cacheBitmap;
+	private Canvas cacheCanvas;
+
+	private float drawScale;
 
 	private final FPSCounter fpsCounter;
 
@@ -37,12 +57,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		void onInvalidate();
 	}
 
+	private OnDrawScaleChangeListener onDrawScaleChangeListener;
+
+	public interface OnDrawScaleChangeListener {
+		void onDrawScaleChange(float newScale);
+	}
+
 	public void setOnInvalidateListener(OnInvalidateListener onInvalidateListener) {
 		this.onInvalidateListener = onInvalidateListener;
 	}
 
 	public OnInvalidateListener getOnInvalidateListener() {
 		return onInvalidateListener;
+	}
+
+	public void setOnDrawScaleChangeListener(OnDrawScaleChangeListener onDrawScaleChangeListener) {
+		this.onDrawScaleChangeListener = onDrawScaleChangeListener;
+	}
+
+	public OnDrawScaleChangeListener getOnDrawScaleChangeListener() {
+		return onDrawScaleChangeListener;
 	}
 
 	public GameView(Context context) {
@@ -64,12 +98,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		setKeepScreenOn(true);
 		isDraw = false;
 		threadActive = false;
+		cellPaint = new Paint();
+		cellPaint.setAntiAlias(false);
+		setLandSize(ScreenUtils.getScreenWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
 		setCellSize(5);
 		setCellColor(Color.BLACK);
 		setBackgroundColor(Color.WHITE);
 		fpsCounter = new FPSCounter();
-		mLand = new Land(ScreenUtils.getScreenWidth() / cellSize,
-				ScreenUtils.getScreenRealHeight() / cellSize / 2);
+		setDrawScale(2.0f);
 		mHolder.setFixedSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenRealHeight() / 2);
 	}
 
@@ -107,22 +143,23 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void drawLand () {
-        Canvas canvas = mHolder.lockCanvas();
-        if (canvas != null) {
-			Paint paint = new Paint();
-			paint.setAntiAlias(false);
-			paint.setStrokeWidth(cellSize * 0.5f);
-			paint.setColor(cellColor);
-			canvas.drawColor(backgroundColor);
-			for(int x = 0; x < mLand.getWidth(); x ++){
-				for(int y = 0; y < mLand.getHeight(); y ++){
+        Canvas mCanvas = mHolder.lockCanvas();
+		Matrix matrix = new Matrix();
+		matrix.setScale(drawScale, drawScale);
+        if (mCanvas != null) {
+        	mCanvas.drawPaint(eraser);
+        	cacheCanvas.drawPaint(eraser);
+			cacheCanvas.drawColor(backgroundColor);
+			for(int x = 0; x < mLand.getWidth(); x ++) {
+				for(int y = 0; y < mLand.getHeight(); y ++) {
 					Cell cell = mLand.getCell(x, y);
 					if (cell.getState() == Cell.STATE_ALIVE) {
-						canvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, paint);
+						cacheCanvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, cellPaint);
 					}
 				}
 			}
-			mHolder.unlockCanvasAndPost(canvas);
+			mCanvas.drawBitmap(cacheBitmap, matrix, bitmapPaint);
+			mHolder.unlockCanvasAndPost(mCanvas);
 		}
     }
 
@@ -130,8 +167,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		int strokeSize = 3;
-		int posX = (int)(event.getX() / cellSize);
-		int posY = (int)(event.getY() / cellSize);
+		int posX = (int)(event.getX() / cellSize / drawScale);
+		int posY = (int)(event.getY() / cellSize / drawScale);
 		switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_MOVE:
@@ -165,6 +202,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void setCellColor(int cellColor) {
 		this.cellColor = cellColor;
+		cellPaint.setColor(cellColor);
 	}
 
 	public int getCellColor() {
@@ -173,6 +211,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void setCellSize(int cellSize) {
 		this.cellSize = cellSize;
+		cellPaint.setStrokeWidth(cellSize);
+		cacheBitmap = Bitmap.createBitmap(mLand.getWidth(), mLand.getHeight(), Bitmap.Config.ARGB_8888);
+		cacheCanvas = new Canvas(cacheBitmap);
 	}
 
 	public int getCellSize() {
@@ -194,6 +235,43 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public int getFPS() {
 		return (int) fpsCounter.getFPS();
+	}
+
+	public void clear() {
+		mLand.clear();
+		if (!isDraw) {
+			drawLand();
+		}
+	}
+
+	public void reset() {
+		mLand.reset();
+		if (!isDraw) {
+			drawLand();
+		}
+	}
+
+	public void setDrawScale(float drawScale) {
+		this.drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		if (onDrawScaleChangeListener != null) {
+			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
+		}
+	}
+
+	public float getDrawScale() {
+		return drawScale;
+	}
+
+	public void setLandSize(int width, int height) {
+		mLand = new Land(width, height);
+	}
+
+	public void addDrawScale(float value) {
+		drawScale += value;
+		drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		if (onDrawScaleChangeListener != null) {
+			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
+		}
 	}
 
 }

@@ -44,15 +44,19 @@ public class Land {
 		init(ALIVE_PROBABILITY_DEFAULT);
 	}
 
-	public void init (double aliveProbability) {
+	public synchronized void init (double aliveProbability) {
+		int aliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				cellMap[x][y] = new Cell(deadOrAlive(aliveProbability));
+				Cell cell = new Cell(deadOrAlive(aliveProbability));
+				aliveCellCount += cell.getState();
+				cellMap[x][y] = cell;
 			}
 		}
+		this.aliveCellCount = aliveCellCount;
 	}
 
-	public void invalidate () {
+	public synchronized void invalidate () {
 		dayCount ++;
 		int aliveCellCount = 0;
 		Land stepLand = new Land(width, height, ALIVE_PROBABILITY_ALL_DEAD);
@@ -63,7 +67,7 @@ public class Land {
 				Cell cell = getCell(x, y);
 				Cell stepCell = stepLand.getCell(x, y);
 				int n = getPosCellCount(x, y);
-				if (cell.getState() == 1) {
+				if (cell.getState() == Cell.STATE_ALIVE) {
 					aliveCellCount ++;
 					if (n < 2) {
 						stepCell.die();
@@ -76,7 +80,7 @@ public class Land {
 					}
 				}
 				else {
-					if (stepCell.getState() == 0) {
+					if (stepCell.getState() == Cell.STATE_DEAD) {
 						if (n == 3)
 						{
 							stepCell.alive();
@@ -149,6 +153,11 @@ public class Land {
 
 	public int getHeight() {
 		return height;
+	}
+
+	public void reset() {
+		init();
+		dayCount = 0;
 	}
 
 }

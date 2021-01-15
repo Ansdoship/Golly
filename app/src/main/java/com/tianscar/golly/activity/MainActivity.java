@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.tianscar.golly.ui.GameView;
 import com.tianscar.golly.R;
 
+import java.text.DecimalFormat;
+
 public class MainActivity extends AppCompatActivity {
 
 	// Widgets
@@ -27,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
 	private EditText etCoordinateX;
 	private EditText etCoordinateY;
 	private Button btnAddCell;
+	private Button btnScaleDown;
+	private Button btnScaleUp;
+	private Button btnScaleReset;
+	private TextView tvScale;
 	private StringBuilder gameInfoBuilder;
 
 	private boolean isGameRendering;
@@ -43,12 +49,27 @@ public class MainActivity extends AppCompatActivity {
 					gameView.startGame();
 					break;
 				case R.id.btn_clear:
-					gameView.getLand().clear();
+					gameView.clear();
+					if (!gameView.isGameRendering()) {
+						updateGameInfo();
+					}
 					break;
 				case R.id.btn_reset:
-					gameView.getLand().init();
+					gameView.reset();
+					if (!gameView.isGameRendering()) {
+						updateGameInfo();
+					}
 					break;
 				case R.id.btn_add_cell:
+					break;
+				case R.id.btn_scale_down:
+					gameView.addDrawScale(-0.2f);
+					break;
+				case R.id.btn_scale_up:
+					gameView.addDrawScale(0.2f);
+					break;
+				case R.id.btn_scale_reset:
+					gameView.setDrawScale(1.0f);
 					break;
 				default:
 					throw new IllegalStateException("Unexpected value: " + v.getId());
@@ -75,45 +96,32 @@ public class MainActivity extends AppCompatActivity {
         etCoordinateY = findViewById(R.id.et_coordinate_y);
         btnAddCell = findViewById(R.id.btn_add_cell);
         btnAddCell.setOnClickListener(clickListener);
+        btnScaleDown = findViewById(R.id.btn_scale_down);
+        btnScaleDown.setOnClickListener(clickListener);
+        btnScaleUp = findViewById(R.id.btn_scale_up);
+        btnScaleUp.setOnClickListener(clickListener);
+        btnScaleReset = findViewById(R.id.btn_scale_reset);
+        btnScaleReset.setOnClickListener(clickListener);
+        tvScale = findViewById(R.id.tv_scale);
 
         gameView = new GameView(this);
         container.addView(gameView);
         gameInfoBuilder = new StringBuilder();
 
+        gameView.setOnDrawScaleChangeListener(new GameView.OnDrawScaleChangeListener() {
+			@Override
+			public void onDrawScaleChange(float newScale) {
+				tvScale.setText(new DecimalFormat("0.0").format(newScale * 100));
+				tvScale.append("%");
+			}
+		});
         gameView.setOnInvalidateListener(new GameView.OnInvalidateListener() {
 			@Override
 			public void onInvalidate() {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						gameInfoBuilder.setLength(0);
-						gameInfoBuilder
-								.append(getResources().getString(R.string.authors))
-								.append(": ")
-								.append(getResources().getString(R.string.dobando))
-								.append(" & ")
-								.append(getResources().getString(R.string.tianscar))
-								.append("\n")
-								.append(getResources().getString(R.string.day_count))
-								.append(": ")
-								.append(gameView.getLand().getDayCount())
-								.append("\n")
-								.append(getResources().getString(R.string.FPS))
-								.append(": ")
-								.append(gameView.getFPS())
-								.append("\n")
-								.append(getResources().getString(R.string.free_space))
-								.append(": ")
-								.append(gameView.getLand().getDeadCellCount())
-								.append("\n")
-								.append(getResources().getString(R.string.alive_cell_count))
-								.append(": ")
-								.append(gameView.getLand().getAliveCellCount());
-						tvGameInfo.setText(gameInfoBuilder.toString());
-					}
-				});
+				updateGameInfo();
 			}
 		});
+        gameView.setDrawScale(1.0f);
         gameView.startGame();
 		isGameRendering = true;
     }
@@ -128,6 +136,38 @@ public class MainActivity extends AppCompatActivity {
 	protected void onResume() {
 		super.onResume();
 		gameView.setGameRendering(isGameRendering);
+	}
+
+	private void updateGameInfo() {
+    	runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				gameInfoBuilder.setLength(0);
+				gameInfoBuilder
+						.append(getResources().getString(R.string.authors))
+						.append(": ")
+						.append(getResources().getString(R.string.dobando))
+						.append(" & ")
+						.append(getResources().getString(R.string.tianscar))
+						.append("\n")
+						.append(getResources().getString(R.string.day_count))
+						.append(": ")
+						.append(gameView.getLand().getDayCount())
+						.append("\n")
+						.append(getResources().getString(R.string.FPS))
+						.append(": ")
+						.append(gameView.getFPS())
+						.append("\n")
+						.append(getResources().getString(R.string.free_space))
+						.append(": ")
+						.append(gameView.getLand().getDeadCellCount())
+						.append("\n")
+						.append(getResources().getString(R.string.alive_cell_count))
+						.append(": ")
+						.append(gameView.getLand().getAliveCellCount());
+				tvGameInfo.setText(gameInfoBuilder.toString());
+			}
+		});
 	}
 
 }
