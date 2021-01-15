@@ -32,7 +32,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	private Land mLand;
 	private int cellSize;
 	private int cellColor;
-	private int backgroundColor;
+	private int landBackgroundColor;
 	private final Paint cellPaint;
 	private final static Paint eraser;
 	static {
@@ -102,7 +102,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		setLandSize(ScreenUtils.getScreenWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
 		setCellSize(1);
 		setCellColor(Color.BLACK);
-		setBackgroundColor(Color.WHITE);
+		setLandBackgroundColor(Color.WHITE);
 		fpsCounter = new FPSCounter();
 		setDrawScale(1.0f);
 		mHolder.setFixedSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenRealHeight() / 2);
@@ -148,7 +148,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (mCanvas != null) {
         	mCanvas.drawPaint(eraser);
         	cacheCanvas.drawPaint(eraser);
-			cacheCanvas.drawColor(backgroundColor);
+			cacheCanvas.drawColor(landBackgroundColor);
 			for(int x = 0; x < mLand.getWidth(); x ++) {
 				for(int y = 0; y < mLand.getHeight(); y ++) {
 					Cell cell = mLand.getCell(x, y);
@@ -222,13 +222,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		return cellSize;
 	}
 
-	@Override
-	public void setBackgroundColor(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
+	public void setLandBackgroundColor(int landBackgroundColor) {
+		this.landBackgroundColor = landBackgroundColor;
 	}
 
-	public int getBackgroundColor() {
-		return backgroundColor;
+	public int getLandBackgroundColor() {
+		return landBackgroundColor;
 	}
 
 	public Land getLand() {
