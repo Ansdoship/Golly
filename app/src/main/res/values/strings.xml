@@ -16,4 +16,6 @@
 	<string name="free_space">Free Space</string>
 	<string name="alive_cell_count">Alive Cells</string>
 	<string name="authors">Authors</string>
+    <string name="scale_mode_on">Scale Mode On</string>
+	<string name="scale_mode_off">Scale Mode Off</string>
 </resources>

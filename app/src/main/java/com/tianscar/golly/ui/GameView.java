@@ -28,8 +28,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private final SurfaceHolder mHolder;
     private volatile boolean isDraw;
     private volatile boolean threadActive;
+    private volatile boolean scaleMode;
 
+    private final int VIEW_WIDTH;
+    private final int VIEW_HEIGHT;
 	private Land mLand;
+	private float landTranslationX;
+	private float landTranslationY;
+	private int cellStrokeSize;
 	private int cellSize;
 	private int cellColor;
 	private int landBackgroundColor;
@@ -97,15 +103,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		setKeepScreenOn(true);
 		isDraw = false;
 		threadActive = false;
+		scaleMode = false;
 		cellPaint = new Paint();
 		cellPaint.setAntiAlias(false);
 		setLandSize(ScreenUtils.getScreenWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
+		setCellStrokeSize(3);
 		setCellSize(1);
 		setCellColor(Color.BLACK);
 		setLandBackgroundColor(Color.WHITE);
 		fpsCounter = new FPSCounter();
 		setDrawScale(1.0f);
-		mHolder.setFixedSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenRealHeight() / 2);
+		VIEW_WIDTH = ScreenUtils.getScreenWidth();
+		VIEW_HEIGHT = ScreenUtils.getScreenRealHeight() / 2;
+		mHolder.setFixedSize(VIEW_WIDTH, VIEW_HEIGHT);
+		resetLandTranslationX();
+		resetLandTranslationY();
 	}
 
 	@Override
@@ -144,7 +156,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private void drawLand () {
         Canvas mCanvas = mHolder.lockCanvas();
 		Matrix matrix = new Matrix();
-		matrix.setScale(drawScale, drawScale);
+		matrix.setTranslate(getLandTranslationX(), getLandTranslationY());
+		matrix.postScale(drawScale, drawScale);
         if (mCanvas != null) {
         	mCanvas.drawPaint(eraser);
         	cacheCanvas.drawPaint(eraser);
@@ -162,28 +175,76 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		}
     }
 
+	private double scaleModeTouchDistRecord;
+	private float scaleModeRecordX;
+	private float scaleModeRecordY;
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
-		int strokeSize = 3;
-		int posX = (int)(event.getX() / cellSize / drawScale);
-		int posY = (int)(event.getY() / cellSize / drawScale);
-		switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN:
-			case MotionEvent.ACTION_MOVE:
-				for (int x = posX - strokeSize; x <= posX + strokeSize; x ++) {
-					for (int y = posY - strokeSize; y <= posY + strokeSize; y ++) {
-						if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
-							mLand.getCell(x, y).alive();
+		if (scaleMode) {
+			switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_DOWN:
+					scaleModeRecordX = event.getX(0);
+					scaleModeRecordY = event.getY(0);
+					break;
+				case MotionEvent.ACTION_POINTER_DOWN:
+					// Initial distance
+					scaleModeTouchDistRecord = spacing(event);
+					break;
+				case MotionEvent.ACTION_MOVE:
+					double newTouchDist = spacing(event);
+					// If distance of two fingers > 16
+					// Replace 16 with other value to control sensitivity
+					if(newTouchDist != 0) {
+						if(newTouchDist >= scaleModeTouchDistRecord + 16) {
+							addDrawScale(0.016f);
+							scaleModeTouchDistRecord = newTouchDist;
+						}
+						if(newTouchDist <= scaleModeTouchDistRecord - 16) {
+							addDrawScale(-0.016f);
+							scaleModeTouchDistRecord = newTouchDist;
 						}
 					}
-				}
-				break;
+					addLandTranslationX(event.getX(0) - scaleModeRecordX);
+					addLandTranslationY(event.getY(0) - scaleModeRecordY);
+					scaleModeRecordX = event.getX(0);
+					scaleModeRecordY = event.getY(0);
+					break;
+			}
+		}
+		else {
+			int posX = (int)(event.getX() / cellSize / drawScale);
+			int posY = (int)(event.getY() / cellSize / drawScale);
+			switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_MOVE:
+					addCellStroke(posX, posY);
+					break;
+			}
 		}
 		if (!isDraw) {
 			drawLand();
 		}
 		return true;
+	}
+
+	private static double spacing(@NonNull MotionEvent event) {
+		if(event.getPointerCount() >= 2) {
+			float x = event.getX(0) - event.getX(1);
+			float y = event.getY(0) - event.getY(1);
+			return Math.pow(x * x + y * y, 0.5);
+		}
+		return 0;
+	}
+
+	private void addCellStroke(int posX, int posY) {
+		for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
+			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
+				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
+					mLand.getCell(x, y).alive();
+				}
+			}
+		}
 	}
 	
 	public void stopGame() {
@@ -283,6 +344,62 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		if (onDrawScaleChangeListener != null) {
 			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
 		}
+	}
+
+	public void setScaleMode(boolean scaleMode) {
+		this.scaleMode = scaleMode;
+	}
+
+	public boolean isScaleMode() {
+		return scaleMode;
+	}
+
+	public void setCellStrokeSize(int cellStrokeSize) {
+		this.cellStrokeSize = cellStrokeSize;
+	}
+
+	public int getCellStrokeSize() {
+		return cellStrokeSize;
+	}
+
+	public void setLandTranslationX(float landTranslationX) {
+		this.landTranslationX = landTranslationX;
+	}
+
+	public void setLandTranslationY(float landTranslationY) {
+		this.landTranslationY = landTranslationY;
+	}
+
+	public float getLandTranslationX() {
+		return landTranslationX;
+	}
+
+	public float getLandTranslationY() {
+		return landTranslationY;
+	}
+
+	public void resetLandTranslationX() {
+		landTranslationX = (getViewWidth() - getLand().getWidth()) * 0.5f;
+	}
+
+	public void resetLandTranslationY() {
+		landTranslationY = (getViewHeight() - getLand().getHeight()) * 0.5f;
+	}
+
+	public void addLandTranslationX(float value) {
+		landTranslationX += value;
+	}
+
+	public void addLandTranslationY(float value) {
+		landTranslationY += value;
+	}
+
+	public int getViewWidth() {
+		return VIEW_WIDTH;
+	}
+
+	public int getViewHeight() {
+		return VIEW_HEIGHT;
 	}
 
 }

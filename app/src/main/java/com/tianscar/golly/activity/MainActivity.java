@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.EditText;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 	private SeekBar barDrawScale;
 	private Button btnAliveProbability;
 	private SeekBar barAliveProbability;
+	private ToggleButton tBtnScaleMode;
 	private StringBuilder gameInfoBuilder;
 
 	private boolean isGameRendering;
@@ -68,11 +70,16 @@ public class MainActivity extends AppCompatActivity {
 					break;
 				case R.id.btn_draw_scale:
 					gameView.setDrawScale(1.0f);
+					gameView.resetLandTranslationX();
+					gameView.resetLandTranslationY();
 					break;
 				case R.id.btn_alive_probability:
 					aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
 					updateAliveProbabilityBtn();
 					updateAliveProbabilityBar();
+					break;
+				case R.id.tbtn_scale_mode:
+					gameView.setScaleMode(tBtnScaleMode.isChecked());
 					break;
 			}
 		}
@@ -129,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
         barAliveProbability = findViewById(R.id.bar_alive_probability);
 		barAliveProbability.setOnSeekBarChangeListener(seekBarChangeListener);
         aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
+        tBtnScaleMode = findViewById(R.id.tbtn_scale_mode);
+        tBtnScaleMode.setOnClickListener(clickListener);
 
         gameView = new GameView(this);
         container.addView(gameView);
