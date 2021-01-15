@@ -3,7 +3,6 @@ package com.tianscar.golly.ui;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -101,11 +100,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		cellPaint = new Paint();
 		cellPaint.setAntiAlias(false);
 		setLandSize(ScreenUtils.getScreenWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
-		setCellSize(5);
+		setCellSize(1);
 		setCellColor(Color.BLACK);
 		setBackgroundColor(Color.WHITE);
 		fpsCounter = new FPSCounter();
-		setDrawScale(2.0f);
+		setDrawScale(1.0f);
 		mHolder.setFixedSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenRealHeight() / 2);
 	}
 
@@ -181,6 +180,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 				break;
 		}
+		if (!isDraw) {
+			drawLand();
+		}
 		return true;
 	}
 	
@@ -245,7 +247,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void reset() {
-		mLand.reset();
+		reset(Land.ALIVE_PROBABILITY_DEFAULT);
+	}
+
+	public void reset(double aliveProbability) {
+		mLand.reset(aliveProbability);
 		if (!isDraw) {
 			drawLand();
 		}
@@ -253,6 +259,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void setDrawScale(float drawScale) {
 		this.drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		if (!isDraw) {
+			drawLand();
+		}
 		if (onDrawScaleChangeListener != null) {
 			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
 		}
@@ -269,6 +278,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public void addDrawScale(float value) {
 		drawScale += value;
 		drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		if (!isDraw) {
+			drawLand();
+		}
 		if (onDrawScaleChangeListener != null) {
 			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
 		}

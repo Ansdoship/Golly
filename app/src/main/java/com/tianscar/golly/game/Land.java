@@ -160,4 +160,9 @@ public class Land {
 		dayCount = 0;
 	}
 
+	public void reset(double aliveProbability) {
+		init(aliveProbability);
+		dayCount = 0;
+	}
+
 }

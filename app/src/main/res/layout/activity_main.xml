@@ -95,6 +95,23 @@
 					</LinearLayout>
 				</HorizontalScrollView>
 
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:orientation="horizontal">
+
+					<Button
+						android:id="@+id/btn_alive_probability"
+						style="@style/Widget.AppCompat.Button.Colored"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content" />
+
+					<SeekBar
+						android:id="@+id/bar_alive_probability"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent" />
+				</LinearLayout>
+
 				<HorizontalScrollView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"

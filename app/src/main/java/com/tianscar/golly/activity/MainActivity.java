@@ -5,12 +5,16 @@ import android.os.Bundle;
 import android.widget.FrameLayout;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.math.MathUtils;
 
+import com.tianscar.golly.game.Cell;
+import com.tianscar.golly.game.Land;
 import com.tianscar.golly.ui.GameView;
 import com.tianscar.golly.R;
 
@@ -33,9 +37,12 @@ public class MainActivity extends AppCompatActivity {
 	private Button btnScaleUp;
 	private Button btnScaleReset;
 	private TextView tvScale;
+	private Button btnAliveProbability;
+	private SeekBar barAliveProbability;
 	private StringBuilder gameInfoBuilder;
 
 	private boolean isGameRendering;
+	private double aliveProbability;
 
 	private final View.OnClickListener clickListener = new View.OnClickListener() {
 		@SuppressLint("NonConstantResourceId")
@@ -55,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 					}
 					break;
 				case R.id.btn_reset:
-					gameView.reset();
+					gameView.reset(aliveProbability);
 					if (!gameView.isGameRendering()) {
 						updateGameInfo();
 					}
@@ -70,6 +77,11 @@ public class MainActivity extends AppCompatActivity {
 					break;
 				case R.id.btn_scale_reset:
 					gameView.setDrawScale(1.0f);
+					break;
+				case R.id.btn_alive_probability:
+					aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
+					updateAliveProbabilityBtn();
+					updateAliveProbabilityBar();
 					break;
 				default:
 					throw new IllegalStateException("Unexpected value: " + v.getId());
@@ -103,6 +115,25 @@ public class MainActivity extends AppCompatActivity {
         btnScaleReset = findViewById(R.id.btn_scale_reset);
         btnScaleReset.setOnClickListener(clickListener);
         tvScale = findViewById(R.id.tv_scale);
+        btnAliveProbability = findViewById(R.id.btn_alive_probability);
+        btnAliveProbability.setOnClickListener(clickListener);
+        barAliveProbability = findViewById(R.id.bar_alive_probability);
+
+        aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
+		updateAliveProbabilityBtn();
+		updateAliveProbabilityBar();
+
+        barAliveProbability.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				aliveProbability = MathUtils.clamp(progress * 0.01, 0, 1);
+				updateAliveProbabilityBtn();
+			}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {}
+		});
 
         gameView = new GameView(this);
         container.addView(gameView);
@@ -125,6 +156,15 @@ public class MainActivity extends AppCompatActivity {
         gameView.startGame();
 		isGameRendering = true;
     }
+
+    private void updateAliveProbabilityBtn() {
+		btnAliveProbability.setText(new DecimalFormat("0").format(aliveProbability * 100));
+		btnAliveProbability.append("%");
+	}
+
+	private void updateAliveProbabilityBar() {
+		barAliveProbability.setProgress((int) (aliveProbability * 100));
+	}
 
 	@Override
 	protected void onPause() {
