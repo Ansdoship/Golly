@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void updateDrawScaleBtn() {
-		btnDrawScale.setText(new DecimalFormat("0.0").format(gameView.getDrawScale() * 100));
+		btnDrawScale.setText(new DecimalFormat("0").format(gameView.getDrawScale() * 100));
 		btnDrawScale.append("%");
 	}
 

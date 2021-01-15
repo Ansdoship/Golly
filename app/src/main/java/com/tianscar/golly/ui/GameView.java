@@ -188,22 +188,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					scaleModeRecordY = event.getY(0);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
-					// Initial distance
 					scaleModeTouchDistRecord = spacing(event);
 					break;
 				case MotionEvent.ACTION_MOVE:
 					double newTouchDist = spacing(event);
-					// If distance of two fingers > 16
-					// Replace 16 with other value to control sensitivity
 					if(newTouchDist != 0) {
-						if(newTouchDist >= scaleModeTouchDistRecord + 16) {
-							addDrawScale(0.016f);
-							scaleModeTouchDistRecord = newTouchDist;
-						}
-						if(newTouchDist <= scaleModeTouchDistRecord - 16) {
-							addDrawScale(-0.016f);
-							scaleModeTouchDistRecord = newTouchDist;
-						}
+						double touchDist = newTouchDist - scaleModeTouchDistRecord;
+						addDrawScale((float) (0.005 * touchDist));
+						scaleModeTouchDistRecord = newTouchDist;
 					}
 					addLandTranslationX(event.getX(0) - scaleModeRecordX);
 					addLandTranslationY(event.getY(0) - scaleModeRecordY);
@@ -213,8 +205,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			}
 		}
 		else {
-			int posX = (int)(event.getX() / cellSize / drawScale);
-			int posY = (int)(event.getY() / cellSize / drawScale);
+			int posX = (int)(event.getX() / cellSize / drawScale - getLandTranslationX());
+			int posY = (int)(event.getY() / cellSize / drawScale - getLandTranslationY());
 			switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 				case MotionEvent.ACTION_MOVE:
@@ -318,13 +310,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void setDrawScale(float drawScale) {
-		this.drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
-		if (!isDraw) {
-			drawLand();
-		}
-		if (onDrawScaleChangeListener != null) {
-			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
-		}
+		addDrawScale(drawScale - this.drawScale);
 	}
 
 	public float getDrawScale() {
