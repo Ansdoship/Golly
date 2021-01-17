@@ -1,6 +1,4 @@
-package com.tianscar.golly.util;
-
-import java.text.DecimalFormat;
+package com.ansdoship.golly.util;
 
 public class FPSCounter {
 

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical">
+	android:orientation="vertical" >
 
 	<View
 		android:layout_width="match_parent"
@@ -14,9 +13,7 @@
 		android:id="@+id/container"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:background="@color/black">
-
-	</FrameLayout>
+		android:background="@color/black"/>
 
 	<View
 		android:layout_width="match_parent"
@@ -28,7 +25,9 @@
 		android:layout_height="match_parent"
 		android:fadeScrollbars="false"
 		android:scrollbarSize="2dp"
-		android:scrollbarThumbVertical="@color/black">
+		android:scrollbarThumbVertical="@color/black"
+		android:fadingEdge="none"
+		android:overScrollMode="never" >
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -58,7 +57,9 @@
 					android:layout_height="wrap_content"
 					android:fadeScrollbars="false"
 					android:scrollbarSize="2dp"
-					android:scrollbarThumbHorizontal="@color/black">
+					android:scrollbarThumbHorizontal="@color/black"
+					android:fadingEdge="none"
+					android:overScrollMode="never" >
 
 					<LinearLayout
 						android:layout_width="wrap_content"
@@ -124,7 +125,9 @@
 					android:layout_height="wrap_content"
 					android:fadeScrollbars="false"
 					android:scrollbarSize="2dp"
-					android:scrollbarThumbHorizontal="@color/black">
+					android:scrollbarThumbHorizontal="@color/black"
+					android:fadingEdge="none"
+					android:overScrollMode="never" >
 
 					<LinearLayout
 						android:layout_width="wrap_content"
@@ -199,9 +202,8 @@
 					<SeekBar
 						android:id="@+id/bar_draw_scale"
 						style="@style/Widget.AppCompat.SeekBar"
-						android:layout_width="0dp"
-						android:layout_height="match_parent"
-						android:layout_weight="1" />
+						android:layout_width="match_parent"
+						android:layout_height="match_parent" />
 				</LinearLayout>
 
 			</LinearLayout>

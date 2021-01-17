@@ -1,4 +1,4 @@
-package com.tianscar.golly.game;
+package com.ansdoship.golly.game;
 
 import java.util.ArrayList;
 

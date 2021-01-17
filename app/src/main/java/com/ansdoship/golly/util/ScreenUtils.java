@@ -1,4 +1,4 @@
-package com.tianscar.golly.util;
+package com.ansdoship.golly.util;
 
 import android.content.Context;
 import android.graphics.Point;

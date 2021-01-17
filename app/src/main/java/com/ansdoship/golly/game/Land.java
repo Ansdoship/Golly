@@ -1,4 +1,4 @@
-package com.tianscar.golly.game;
+package com.ansdoship.golly.game;
 
 public class Land {
 
@@ -7,7 +7,6 @@ public class Land {
 
 	private Cell[][] cellMap;
 	private int dayCount;
-	private int aliveCellCount;
 
 	public static final double ALIVE_PROBABILITY_DEFAULT = 0.5;
 	public static final double ALIVE_PROBABILITY_ALL_DEAD = 0;
@@ -36,7 +35,6 @@ public class Land {
 		this.height = height;
 		cellMap = new Cell[width][height];
 		dayCount = 0;
-		aliveCellCount = 0;
 		init(aliveProbability);
 	}
 
@@ -45,30 +43,23 @@ public class Land {
 	}
 
 	public synchronized void init (double aliveProbability) {
-		int aliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
 				Cell cell = new Cell(deadOrAlive(aliveProbability));
-				aliveCellCount += cell.getState();
 				cellMap[x][y] = cell;
 			}
 		}
-		this.aliveCellCount = aliveCellCount;
 	}
 
 	public synchronized void invalidate () {
 		dayCount ++;
-		int aliveCellCount = 0;
 		Land stepLand = new Land(width, height, ALIVE_PROBABILITY_ALL_DEAD);
-		for (int x = 0; x < width; x ++)
-		{
-			for (int y = 0; y < height; y ++)
-			{
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
 				Cell cell = getCell(x, y);
 				Cell stepCell = stepLand.getCell(x, y);
 				int n = getPosCellCount(x, y);
 				if (cell.getState() == Cell.STATE_ALIVE) {
-					aliveCellCount ++;
 					if (n < 2) {
 						stepCell.die();
 					}
@@ -81,8 +72,7 @@ public class Land {
 				}
 				else {
 					if (stepCell.getState() == Cell.STATE_DEAD) {
-						if (n == 3)
-						{
+						if (n == 3) {
 							stepCell.alive();
 						}
 					}
@@ -90,7 +80,6 @@ public class Land {
 			}
 		}
 		this.cellMap = stepLand.cellMap;
-		this.aliveCellCount = aliveCellCount;
 	}
 
 	public void clear () {
@@ -131,15 +120,21 @@ public class Land {
 		}
 	}
 
-	public int getAliveCellCount() {
+	public int countAliveCell() {
+		int aliveCellCount = 0;
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
+				aliveCellCount += getCell(x, y).getState();
+			}
+		}
 		return aliveCellCount;
 	}
 
-	public int getDeadCellCount() {
-		return getCellCount() - getAliveCellCount();
+	public int countDeadCell() {
+		return countCell() - countAliveCell();
 	}
 
-	public int getCellCount() {
+	public int countCell() {
 		return getWidth() * getHeight();
 	}
 

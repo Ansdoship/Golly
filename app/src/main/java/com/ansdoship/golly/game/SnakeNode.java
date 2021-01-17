@@ -1,4 +1,4 @@
-package com.tianscar.golly.game;
+package com.ansdoship.golly.game;
 
 public class SnakeNode
 {

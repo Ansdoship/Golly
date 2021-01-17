@@ -1,4 +1,4 @@
-package com.tianscar.golly.activity;
+package com.ansdoship.golly.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -14,9 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.math.MathUtils;
 
-import com.tianscar.golly.game.Land;
-import com.tianscar.golly.ui.GameView;
-import com.tianscar.golly.R;
+import com.ansdoship.golly.game.Land;
+import com.ansdoship.golly.view.LandView;
+import com.ansdoship.golly.R;
 
 import java.text.DecimalFormat;
 
@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
 	// Widgets
 	private FrameLayout container;
-	private GameView gameView;
+	private LandView landView;
 	private Button btnStop;
 	private Button btnStart;
 	private Button btnClear;
@@ -49,29 +49,36 @@ public class MainActivity extends AppCompatActivity {
 		public void onClick(@NonNull View v) {
 			switch(v.getId()){
 				case R.id.btn_stop:
-					gameView.stopGame();
+					landView.stopGame();
 					break;
 				case R.id.btn_start:
-					gameView.startGame();
+					landView.startGame();
 					break;
 				case R.id.btn_clear:
-					gameView.clear();
-					if (!gameView.isGameRendering()) {
+					landView.clear();
+					if (!landView.isGameRendering()) {
 						updateGameInfo();
 					}
 					break;
 				case R.id.btn_reset:
-					gameView.reset(aliveProbability);
-					if (!gameView.isGameRendering()) {
+					landView.reset(aliveProbability);
+					if (!landView.isGameRendering()) {
 						updateGameInfo();
 					}
 					break;
 				case R.id.btn_add_cell:
+					String xStr = etCoordinateX.getText().toString();
+					int xInt = xStr.equals("") ? 0 : Integer.parseInt(xStr);
+					String yStr = etCoordinateY.getText().toString();
+					int yInt = yStr.equals("") ? 0 : Integer.parseInt(yStr);
+					landView.addCellStroke(xInt, yInt);
+					etCoordinateX.clearFocus();
+					etCoordinateY.clearFocus();
 					break;
 				case R.id.btn_draw_scale:
-					gameView.setDrawScale(1.0f);
-					gameView.resetLandTranslationX();
-					gameView.resetLandTranslationY();
+					landView.setDrawScale(1.0f);
+					landView.resetLandTranslationX();
+					landView.resetLandTranslationY();
 					break;
 				case R.id.btn_alive_probability:
 					aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
@@ -79,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 					updateAliveProbabilityBar();
 					break;
 				case R.id.tbtn_scale_mode:
-					gameView.setScaleMode(tBtnScaleMode.isChecked());
+					landView.setScaleMode(tBtnScaleMode.isChecked());
 					break;
 			}
 		}
@@ -96,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 					break;
 				case R.id.bar_draw_scale:
 					if (fromUser) {
-						gameView.setDrawScale((progress + 100) * 0.01f);
+						landView.setDrawScale((progress + 100) * 0.01f);
 					}
 					break;
 			}
@@ -139,57 +146,56 @@ public class MainActivity extends AppCompatActivity {
         tBtnScaleMode = findViewById(R.id.tbtn_scale_mode);
         tBtnScaleMode.setOnClickListener(clickListener);
 
-        gameView = new GameView(this);
-        container.addView(gameView);
+        landView = new LandView(this);
+        container.addView(landView);
         gameInfoBuilder = new StringBuilder();
-        gameView.setOnInvalidateListener(new GameView.OnInvalidateListener() {
+        landView.setOnInvalidateListener(new LandView.OnInvalidateListener() {
 			@Override
 			public void onInvalidate() {
 				updateGameInfo();
 			}
 		});
-        gameView.setOnDrawScaleChangeListener(new GameView.OnDrawScaleChangeListener() {
+        landView.setOnDrawScaleChangeListener(new LandView.OnDrawScaleChangeListener() {
 			@Override
 			public void onDrawScaleChange(float newScale) {
 				updateDrawScaleBtn();
 				updateDrawScaleBar();
 			}
 		});
-        gameView.setDrawScale(1.0f);
-        gameView.startGame();
+        landView.setDrawScale(1.0f);
 		isGameRendering = true;
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
     }
 
-    private void updateAliveProbabilityBtn() {
-		btnAliveProbability.setText(new DecimalFormat("0").format(aliveProbability * 100));
-		btnAliveProbability.append("%");
+    @SuppressLint("SetTextI18n")
+	private void updateAliveProbabilityBtn() {
+		btnAliveProbability.setText(new DecimalFormat("0").format(aliveProbability * 100) + "%");
 	}
 
 	private void updateAliveProbabilityBar() {
 		barAliveProbability.setProgress((int) (aliveProbability * 100));
 	}
 
+	@SuppressLint("SetTextI18n")
 	private void updateDrawScaleBtn() {
-		btnDrawScale.setText(new DecimalFormat("0").format(gameView.getDrawScale() * 100));
-		btnDrawScale.append("%");
+		btnDrawScale.setText(new DecimalFormat("0").format(landView.getDrawScale() * 100) + "%");
 	}
 
 	private void updateDrawScaleBar() {
-		barDrawScale.setProgress((int) ((gameView.getDrawScale() - 1.0f) * 100));
+		barDrawScale.setProgress((int) ((landView.getDrawScale() - 1.0f) * 100));
 	}
 
 	@Override
 	protected void onPause() {
-    	isGameRendering = gameView.isGameRendering();
+    	isGameRendering = landView.isGameRendering();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		gameView.setGameRendering(isGameRendering);
+		landView.setGameRendering(isGameRendering);
 	}
 
 	private void updateGameInfo() {
@@ -204,21 +210,29 @@ public class MainActivity extends AppCompatActivity {
 						.append(" & ")
 						.append(getResources().getString(R.string.tianscar))
 						.append("\n")
+						.append(getResources().getString(R.string.map_width))
+						.append(": ")
+						.append(landView.getLand().getWidth())
+						.append("\n")
+						.append(getResources().getString(R.string.map_height))
+						.append(": ")
+						.append(landView.getLand().getHeight())
+						.append("\n")
 						.append(getResources().getString(R.string.day_count))
 						.append(": ")
-						.append(gameView.getLand().getDayCount())
+						.append(landView.getLand().getDayCount())
 						.append("\n")
 						.append(getResources().getString(R.string.FPS))
 						.append(": ")
-						.append(gameView.getFPS())
+						.append(landView.getFPS())
 						.append("\n")
 						.append(getResources().getString(R.string.free_space))
 						.append(": ")
-						.append(gameView.getLand().getDeadCellCount())
+						.append(landView.getLand().countDeadCell())
 						.append("\n")
 						.append(getResources().getString(R.string.alive_cell_count))
 						.append(": ")
-						.append(gameView.getLand().getAliveCellCount());
+						.append(landView.getLand().countAliveCell());
 				tvGameInfo.setText(gameInfoBuilder.toString());
 			}
 		});

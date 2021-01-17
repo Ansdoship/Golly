@@ -18,4 +18,6 @@
 	<string name="authors">Authors</string>
     <string name="scale_mode_on">Scale Mode On</string>
 	<string name="scale_mode_off">Scale Mode Off</string>
+    <string name="map_width">Map Width</string>
+	<string name="map_height">Map Height</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.tianscar.golly.util;
+package com.ansdoship.golly.util;
 
 import android.annotation.SuppressLint;
 import android.app.Application;

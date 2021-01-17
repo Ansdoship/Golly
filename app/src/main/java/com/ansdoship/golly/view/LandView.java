@@ -1,4 +1,4 @@
-package com.tianscar.golly.ui;
+package com.ansdoship.golly.view;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -18,12 +18,12 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.core.math.MathUtils;
 
-import com.tianscar.golly.game.Cell;
-import com.tianscar.golly.game.Land;
-import com.tianscar.golly.util.FPSCounter;
-import com.tianscar.golly.util.ScreenUtils;
+import com.ansdoship.golly.game.Cell;
+import com.ansdoship.golly.game.Land;
+import com.ansdoship.golly.util.FPSCounter;
+import com.ansdoship.golly.util.ScreenUtils;
 
-public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
     private final SurfaceHolder mHolder;
     private volatile boolean isDraw;
@@ -49,8 +49,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	static {
 		bitmapPaint = new Paint();
 	}
-	private Bitmap cacheBitmap;
-	private Canvas cacheCanvas;
+	private final Bitmap cacheBitmap;
+	private final Canvas cacheCanvas;
 
 	private float drawScale;
 
@@ -84,15 +84,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		return onDrawScaleChangeListener;
 	}
 
-	public GameView(Context context) {
+	public LandView(Context context) {
 		this(context, null);
 	}
 
-	public GameView(Context context, AttributeSet attrs) {
+	public LandView(Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public GameView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public LandView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		mHolder = getHolder();
 		mHolder.addCallback(this);
@@ -107,17 +107,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		cellPaint = new Paint();
 		cellPaint.setAntiAlias(false);
 		setLandSize(ScreenUtils.getScreenWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
+		cacheBitmap = Bitmap.createBitmap(mLand.getWidth(), mLand.getHeight(), Bitmap.Config.ARGB_8888);
+		cacheCanvas = new Canvas(cacheBitmap);
 		setCellStrokeSize(3);
 		setCellSize(1);
 		setCellColor(Color.BLACK);
 		setLandBackgroundColor(Color.WHITE);
 		fpsCounter = new FPSCounter();
-		setDrawScale(1.0f);
 		VIEW_WIDTH = ScreenUtils.getScreenWidth();
 		VIEW_HEIGHT = ScreenUtils.getScreenRealHeight() / 2;
 		mHolder.setFixedSize(VIEW_WIDTH, VIEW_HEIGHT);
 		resetLandTranslationX();
 		resetLandTranslationY();
+		setDrawScale(1.0f);
 	}
 
 	@Override
@@ -126,7 +128,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-		drawLand();
 		threadActive = true;
 		new Thread(new Runnable() {
 			@Override
@@ -136,9 +137,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					if (isDraw) {
 						mLand.invalidate();
 						drawLand();
-						if (onInvalidateListener != null) {
-							onInvalidateListener.onInvalidate();
-						}
 						fpsCounter.countFPS();
 					}
 				}
@@ -159,19 +157,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		matrix.setTranslate(getLandTranslationX(), getLandTranslationY());
 		matrix.postScale(drawScale, drawScale);
         if (mCanvas != null) {
-        	mCanvas.drawPaint(eraser);
-        	cacheCanvas.drawPaint(eraser);
-			cacheCanvas.drawColor(landBackgroundColor);
-			for(int x = 0; x < mLand.getWidth(); x ++) {
-				for(int y = 0; y < mLand.getHeight(); y ++) {
-					Cell cell = mLand.getCell(x, y);
-					if (cell.getState() == Cell.STATE_ALIVE) {
-						cacheCanvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, cellPaint);
+        	synchronized (mHolder) {
+				mCanvas.drawPaint(eraser);
+				cacheCanvas.drawPaint(eraser);
+				cacheCanvas.drawColor(landBackgroundColor);
+				for(int x = 0; x < mLand.getWidth(); x ++) {
+					for(int y = 0; y < mLand.getHeight(); y ++) {
+						Cell cell = mLand.getCell(x, y);
+						if (cell.getState() == Cell.STATE_ALIVE) {
+							cacheCanvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, cellPaint);
+						}
 					}
 				}
+				mCanvas.drawBitmap(cacheBitmap, matrix, bitmapPaint);
 			}
-			mCanvas.drawBitmap(cacheBitmap, matrix, bitmapPaint);
 			mHolder.unlockCanvasAndPost(mCanvas);
+			if (onInvalidateListener != null) {
+				onInvalidateListener.onInvalidate();
+			}
 		}
     }
 
@@ -203,6 +206,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					scaleModeRecordY = event.getY(0);
 					break;
 			}
+			if (!isDraw) {
+				drawLand();
+			}
 		}
 		else {
 			int posX = (int)(event.getX() / cellSize / drawScale - getLandTranslationX());
@@ -213,9 +219,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					addCellStroke(posX, posY);
 					break;
 			}
-		}
-		if (!isDraw) {
-			drawLand();
 		}
 		return true;
 	}
@@ -229,13 +232,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		return 0;
 	}
 
-	private void addCellStroke(int posX, int posY) {
+	public synchronized void addCellStroke(int posX, int posY) {
 		for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
 			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
 				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
 					mLand.getCell(x, y).alive();
 				}
 			}
+		}
+		if (!isDraw) {
+			drawLand();
 		}
 	}
 	
@@ -267,8 +273,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public void setCellSize(int cellSize) {
 		this.cellSize = cellSize;
 		cellPaint.setStrokeWidth(cellSize);
-		cacheBitmap = Bitmap.createBitmap(mLand.getWidth(), mLand.getHeight(), Bitmap.Config.ARGB_8888);
-		cacheCanvas = new Canvas(cacheBitmap);
 	}
 
 	public int getCellSize() {
@@ -310,7 +314,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void setDrawScale(float drawScale) {
-		addDrawScale(drawScale - this.drawScale);
+		this.drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		if (!isDraw) {
+			drawLand();
+		}
+		if (onDrawScaleChangeListener != null) {
+			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
+		}
 	}
 
 	public float getDrawScale() {
@@ -386,6 +396,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public int getViewHeight() {
 		return VIEW_HEIGHT;
+	}
+
+	public void release() {
+		if (cacheBitmap != null) {
+			if (cacheBitmap.isRecycled()) {
+				cacheBitmap.recycle();
+			}
+		}
 	}
 
 }

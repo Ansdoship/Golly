@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.tianscar.golly">
+    package="com.ansdoship.golly">
 
     <application
         android:allowBackup="true"
@@ -14,7 +14,7 @@
         tools:ignore="AllowBackup">
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.ansdoship.golly.activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
 
