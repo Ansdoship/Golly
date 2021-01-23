@@ -10,7 +10,7 @@
     <string name="coordinate_y">Y坐标</string>
     <string name="add_cell">添加细胞</string>
     <string name="tianscar">碳酸天剑</string>
-    <string name="FPS">帧率</string>
+    <string name="draw_fps">绘制帧率</string>
     <string name="free_space">剩余空间</string>
     <string name="day_count">天数</string>
     <string name="alive_cell_count">存活细胞</string>
@@ -19,4 +19,5 @@
     <string name="scale_mode_off">缩放模式 关</string>
     <string name="map_width">地图宽度</string>
     <string name="map_height">地图高度</string>
+    <string name="invalidate_map_fps">刷新地图帧率</string>
 </resources>

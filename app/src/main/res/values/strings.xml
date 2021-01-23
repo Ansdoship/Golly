@@ -11,7 +11,7 @@
 	<string name="coordinate_y">Y Coordinate</string>
     <string name="add_cell">Add Cell</string>
 	<string name="tianscar">Tianscar</string>
-	<string name="FPS">FPS</string>
+	<string name="draw_fps">Draw FPS</string>
 	<string name="day_count">Days</string>
 	<string name="free_space">Free Space</string>
 	<string name="alive_cell_count">Alive Cells</string>
@@ -20,4 +20,5 @@
 	<string name="scale_mode_off">Scale Mode Off</string>
     <string name="map_width">Map Width</string>
 	<string name="map_height">Map Height</string>
+	<string name="invalidate_map_fps">Invalidate Map FPS</string>
 </resources>

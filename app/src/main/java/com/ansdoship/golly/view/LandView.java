@@ -20,10 +20,16 @@ import androidx.core.math.MathUtils;
 
 import com.ansdoship.golly.game.Cell;
 import com.ansdoship.golly.game.Land;
-import com.ansdoship.golly.util.FPSCounter;
 import com.ansdoship.golly.util.ScreenUtils;
 
 public class LandView extends SurfaceView implements SurfaceHolder.Callback {
+
+	private int drawFps;
+	private long drawTime;
+	private int drawSum;
+	private int invalidateLandFps;
+	private long invalidateLandTime;
+	private int invalidateLandSum;
 
     private final SurfaceHolder mHolder;
     private volatile boolean isDraw;
@@ -53,8 +59,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	private final Canvas cacheCanvas;
 
 	private float drawScale;
-
-	private final FPSCounter fpsCounter;
 
 	private OnInvalidateListener onInvalidateListener;
 
@@ -113,36 +117,63 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		setCellSize(1);
 		setCellColor(Color.BLACK);
 		setLandBackgroundColor(Color.WHITE);
-		fpsCounter = new FPSCounter();
 		VIEW_WIDTH = ScreenUtils.getScreenWidth();
 		VIEW_HEIGHT = ScreenUtils.getScreenRealHeight() / 2;
 		mHolder.setFixedSize(VIEW_WIDTH, VIEW_HEIGHT);
 		resetLandTranslationX();
 		resetLandTranslationY();
 		setDrawScale(1.0f);
+		drawFps = 0;
+		invalidateLandFps = 0;
+		drawTime = 0;
+		invalidateLandTime = 0;
+		drawSum = 0;
+		invalidateLandSum = 0;
 	}
 
 	@Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
+    private final Thread drawThread = new Thread(new Runnable() {
+		@Override
+		public void run() {
+			while (threadActive) {
+				if (isDraw) {
+					drawLand();
+					if (System.currentTimeMillis() - drawTime >= 1000) {
+						drawFps = drawSum + 1;
+						drawSum = 0;
+						drawTime = System.currentTimeMillis();
+					}
+					drawSum ++;
+				}
+			}
+		}
+	});
+
+	private final Thread invalidateLandThread = new Thread(new Runnable() {
+		@Override
+		public void run() {
+			while (threadActive) {
+				if (isDraw) {
+					mLand.invalidate();
+					if (System.currentTimeMillis() - invalidateLandTime >= 1000) {
+						invalidateLandFps = invalidateLandSum + 1;
+						invalidateLandSum = 0;
+						invalidateLandTime = System.currentTimeMillis();
+					}
+					invalidateLandSum ++;
+				}
+			}
+		}
+	});
+
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 		threadActive = true;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				fpsCounter.setNowFPS(System.nanoTime());
-				while (threadActive) {
-					if (isDraw) {
-						mLand.invalidate();
-						drawLand();
-						fpsCounter.countFPS();
-					}
-				}
-
-			}
-		}).start();
+		invalidateLandThread.start();
+		drawThread.start();
     }
 
     @Override
@@ -291,8 +322,12 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		return mLand;
 	}
 
-	public int getFPS() {
-		return (int) fpsCounter.getFPS();
+	public int getDrawFps() {
+		return drawFps;
+	}
+
+	public int getInvalidateLandFps() {
+		return invalidateLandFps;
 	}
 
 	public void clear() {

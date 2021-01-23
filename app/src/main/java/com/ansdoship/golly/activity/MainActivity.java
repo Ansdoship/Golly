@@ -43,6 +43,38 @@ public class MainActivity extends AppCompatActivity {
 	private boolean isGameRendering;
 	private double aliveProbability;
 
+	private int aliveCellCount;
+	private int deadCellCount;
+	private int cellCount;
+	private boolean countThreadActive;
+
+	private final Thread countAliveCellThread = new Thread(new Runnable() {
+		@Override
+		public void run() {
+			while (countThreadActive) {
+				aliveCellCount = landView.getLand().countAliveCell();
+			}
+		}
+	});
+
+	private final Thread countDeadCellThread = new Thread(new Runnable() {
+		@Override
+		public void run() {
+			while (countThreadActive) {
+				deadCellCount = landView.getLand().countDeadCell();
+			}
+		}
+	});
+
+	private final Thread countCellThread = new Thread(new Runnable() {
+		@Override
+		public void run() {
+			while (countThreadActive) {
+				cellCount = landView.getLand().countCell();
+			}
+		}
+	});
+
 	private final View.OnClickListener clickListener = new View.OnClickListener() {
 		@SuppressLint("NonConstantResourceId")
 		@Override
@@ -166,9 +198,19 @@ public class MainActivity extends AppCompatActivity {
 		isGameRendering = true;
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
+		countThreadActive = true;
+		countAliveCellThread.start();
+		countDeadCellThread.start();
+		countCellThread.start();
     }
 
-    @SuppressLint("SetTextI18n")
+	@Override
+	protected void onDestroy() {
+		countThreadActive = false;
+		super.onDestroy();
+	}
+
+	@SuppressLint("SetTextI18n")
 	private void updateAliveProbabilityBtn() {
 		btnAliveProbability.setText(new DecimalFormat("0").format(aliveProbability * 100) + "%");
 	}
@@ -204,12 +246,6 @@ public class MainActivity extends AppCompatActivity {
 			public void run() {
 				gameInfoBuilder.setLength(0);
 				gameInfoBuilder
-						.append(getResources().getString(R.string.authors))
-						.append(": ")
-						.append(getResources().getString(R.string.dobando))
-						.append(" & ")
-						.append(getResources().getString(R.string.tianscar))
-						.append("\n")
 						.append(getResources().getString(R.string.map_width))
 						.append(": ")
 						.append(landView.getLand().getWidth())
@@ -222,17 +258,21 @@ public class MainActivity extends AppCompatActivity {
 						.append(": ")
 						.append(landView.getLand().getDayCount())
 						.append("\n")
-						.append(getResources().getString(R.string.FPS))
+						.append(getResources().getString(R.string.draw_fps))
 						.append(": ")
-						.append(landView.getFPS())
+						.append(landView.getDrawFps())
+						.append("\n")
+						.append(getResources().getString(R.string.invalidate_map_fps))
+						.append(": ")
+						.append(landView.getInvalidateLandFps())
 						.append("\n")
 						.append(getResources().getString(R.string.free_space))
 						.append(": ")
-						.append(landView.getLand().countDeadCell())
+						.append(deadCellCount)
 						.append("\n")
 						.append(getResources().getString(R.string.alive_cell_count))
 						.append(": ")
-						.append(landView.getLand().countAliveCell());
+						.append(aliveCellCount);
 				tvGameInfo.setText(gameInfoBuilder.toString());
 			}
 		});
