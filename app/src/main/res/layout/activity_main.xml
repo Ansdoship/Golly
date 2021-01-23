@@ -173,20 +173,37 @@
 					android:layout_height="2dp"
 					android:background="@color/black" />
 
-				<LinearLayout
+				<HorizontalScrollView
 					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:orientation="horizontal">
+					android:layout_height="wrap_content"
+					android:fadeScrollbars="false"
+					android:fadingEdge="none"
+					android:overScrollMode="never"
+					android:scrollbarSize="2dp"
+					android:scrollbarThumbHorizontal="@color/black">
 
-					<ToggleButton
-						android:id="@+id/tbtn_scale_mode"
-						style="@style/Widget.AppCompat.Button.Colored"
+					<LinearLayout
 						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:textOff="@string/scale_mode_off"
-						android:textOn="@string/scale_mode_on" />
+						android:layout_height="match_parent"
+						android:orientation="horizontal">
 
-				</LinearLayout>
+						<ToggleButton
+							android:id="@+id/tbtn_scale_mode"
+							style="@style/Widget.AppCompat.Button.Colored"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textOff="@string/scale_mode_off"
+							android:textOn="@string/scale_mode_on" />
+
+						<Button
+							android:id="@+id/btn_recenter_map"
+							style="@style/Widget.AppCompat.Button.Colored"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:text="@string/recenter_map" />
+
+					</LinearLayout>
+				</HorizontalScrollView>
 
 				<LinearLayout
 					android:layout_width="match_parent"

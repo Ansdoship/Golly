@@ -20,6 +20,7 @@ import androidx.core.math.MathUtils;
 
 import com.ansdoship.golly.game.Cell;
 import com.ansdoship.golly.game.Land;
+import com.ansdoship.golly.util.DensityUtils;
 import com.ansdoship.golly.util.ScreenUtils;
 
 public class LandView extends SurfaceView implements SurfaceHolder.Callback {
@@ -120,9 +121,9 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		VIEW_WIDTH = ScreenUtils.getScreenWidth();
 		VIEW_HEIGHT = ScreenUtils.getScreenRealHeight() / 2;
 		mHolder.setFixedSize(VIEW_WIDTH, VIEW_HEIGHT);
+		setDrawScale(1.0f);
 		resetLandTranslationX();
 		resetLandTranslationY();
-		setDrawScale(1.0f);
 		drawFps = 0;
 		invalidateLandFps = 0;
 		drawTime = 0;
@@ -135,45 +136,41 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
-    private final Thread drawThread = new Thread(new Runnable() {
-		@Override
-		public void run() {
-			while (threadActive) {
-				if (isDraw) {
-					drawLand();
-					if (System.currentTimeMillis() - drawTime >= 1000) {
-						drawFps = drawSum + 1;
-						drawSum = 0;
-						drawTime = System.currentTimeMillis();
-					}
-					drawSum ++;
-				}
-			}
-		}
-	});
-
-	private final Thread invalidateLandThread = new Thread(new Runnable() {
-		@Override
-		public void run() {
-			while (threadActive) {
-				if (isDraw) {
-					mLand.invalidate();
-					if (System.currentTimeMillis() - invalidateLandTime >= 1000) {
-						invalidateLandFps = invalidateLandSum + 1;
-						invalidateLandSum = 0;
-						invalidateLandTime = System.currentTimeMillis();
-					}
-					invalidateLandSum ++;
-				}
-			}
-		}
-	});
-
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 		threadActive = true;
-		invalidateLandThread.start();
-		drawThread.start();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (threadActive) {
+					if (isDraw) {
+						drawLand();
+						if (System.currentTimeMillis() - drawTime >= 1000) {
+							drawFps = drawSum + 1;
+							drawSum = 0;
+							drawTime = System.currentTimeMillis();
+						}
+						drawSum ++;
+					}
+				}
+			}
+		}).start();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (threadActive) {
+					if (isDraw) {
+						mLand.invalidate();
+						if (System.currentTimeMillis() - invalidateLandTime >= 1000) {
+							invalidateLandFps = invalidateLandSum + 1;
+							invalidateLandSum = 0;
+							invalidateLandTime = System.currentTimeMillis();
+						}
+						invalidateLandSum ++;
+					}
+				}
+			}
+		}).start();
     }
 
     @Override
@@ -185,7 +182,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
     private void drawLand () {
         Canvas mCanvas = mHolder.lockCanvas();
 		Matrix matrix = new Matrix();
-		matrix.setTranslate(getLandTranslationX(), getLandTranslationY());
+		matrix.setTranslate(getLandTranslationX() / drawScale, getLandTranslationY() / drawScale);
 		matrix.postScale(drawScale, drawScale);
         if (mCanvas != null) {
         	synchronized (mHolder) {
@@ -228,7 +225,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 					double newTouchDist = spacing(event);
 					if(newTouchDist != 0) {
 						double touchDist = newTouchDist - scaleModeTouchDistRecord;
-						addDrawScale((float) (0.005 * touchDist));
+						addDrawScale((float) (0.005 * DensityUtils.px2dp(touchDist)));
 						scaleModeTouchDistRecord = newTouchDist;
 					}
 					addLandTranslationX(event.getX(0) - scaleModeRecordX);
@@ -349,7 +346,11 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void setDrawScale(float drawScale) {
-		this.drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		float newScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		float offset = this.drawScale - newScale;
+		this.drawScale = newScale;
+		addLandTranslationX(offset * getLand().getWidth() * 0.5f);
+		addLandTranslationY(offset * getLand().getHeight() * 0.5f);
 		if (!isDraw) {
 			drawLand();
 		}
@@ -367,14 +368,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void addDrawScale(float value) {
-		drawScale += value;
-		drawScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
-		if (!isDraw) {
-			drawLand();
-		}
-		if (onDrawScaleChangeListener != null) {
-			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
-		}
+		setDrawScale(drawScale + value);
 	}
 
 	public void setScaleMode(boolean scaleMode) {
@@ -411,10 +405,13 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void resetLandTranslationX() {
 		landTranslationX = (getViewWidth() - getLand().getWidth()) * 0.5f;
+		addLandTranslationX((1.0f - drawScale) * getLand().getWidth() * 0.5f);
+
 	}
 
 	public void resetLandTranslationY() {
 		landTranslationY = (getViewHeight() - getLand().getHeight()) * 0.5f;
+		addLandTranslationY((1.0f - drawScale) * getLand().getHeight() * 0.5f);
 	}
 
 	public void addLandTranslationX(float value) {

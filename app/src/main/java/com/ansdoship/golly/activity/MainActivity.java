@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 	private Button btnAliveProbability;
 	private SeekBar barAliveProbability;
 	private ToggleButton tBtnScaleMode;
+	private Button btnRecenterMap;
 	private StringBuilder gameInfoBuilder;
 
 	private boolean isGameRendering;
@@ -47,33 +48,6 @@ public class MainActivity extends AppCompatActivity {
 	private int deadCellCount;
 	private int cellCount;
 	private boolean countThreadActive;
-
-	private final Thread countAliveCellThread = new Thread(new Runnable() {
-		@Override
-		public void run() {
-			while (countThreadActive) {
-				aliveCellCount = landView.getLand().countAliveCell();
-			}
-		}
-	});
-
-	private final Thread countDeadCellThread = new Thread(new Runnable() {
-		@Override
-		public void run() {
-			while (countThreadActive) {
-				deadCellCount = landView.getLand().countDeadCell();
-			}
-		}
-	});
-
-	private final Thread countCellThread = new Thread(new Runnable() {
-		@Override
-		public void run() {
-			while (countThreadActive) {
-				cellCount = landView.getLand().countCell();
-			}
-		}
-	});
 
 	private final View.OnClickListener clickListener = new View.OnClickListener() {
 		@SuppressLint("NonConstantResourceId")
@@ -119,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
 					break;
 				case R.id.tbtn_scale_mode:
 					landView.setScaleMode(tBtnScaleMode.isChecked());
+					break;
+				case R.id.btn_recenter_map:
+					landView.resetLandTranslationX();
+					landView.resetLandTranslationY();
 					break;
 			}
 		}
@@ -177,6 +155,8 @@ public class MainActivity extends AppCompatActivity {
         aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
         tBtnScaleMode = findViewById(R.id.tbtn_scale_mode);
         tBtnScaleMode.setOnClickListener(clickListener);
+        btnRecenterMap = findViewById(R.id.btn_recenter_map);
+        btnRecenterMap.setOnClickListener(clickListener);
 
         landView = new LandView(this);
         container.addView(landView);
@@ -199,14 +179,36 @@ public class MainActivity extends AppCompatActivity {
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
 		countThreadActive = true;
-		countAliveCellThread.start();
-		countDeadCellThread.start();
-		countCellThread.start();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (countThreadActive) {
+					aliveCellCount = landView.getLand().countAliveCell();
+				}
+			}
+		}).start();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (countThreadActive) {
+					deadCellCount = landView.getLand().countDeadCell();
+				}
+			}
+		}).start();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (countThreadActive) {
+					cellCount = landView.getLand().countCell();
+				}
+			}
+		}).start();
     }
 
 	@Override
 	protected void onDestroy() {
 		countThreadActive = false;
+		landView.release();
 		super.onDestroy();
 	}
 

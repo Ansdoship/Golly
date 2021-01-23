@@ -20,4 +20,5 @@
     <string name="map_width">地图宽度</string>
     <string name="map_height">地图高度</string>
     <string name="invalidate_map_fps">刷新地图帧率</string>
+    <string name="recenter_map">地图居中</string>
 </resources>

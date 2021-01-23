@@ -21,4 +21,5 @@
     <string name="map_width">Map Width</string>
 	<string name="map_height">Map Height</string>
 	<string name="invalidate_map_fps">Invalidate Map FPS</string>
+	<string name="recenter_map">Recenter Map</string>
 </resources>
