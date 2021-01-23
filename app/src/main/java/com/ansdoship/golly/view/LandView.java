@@ -239,8 +239,8 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 			}
 		}
 		else {
-			int posX = (int)(event.getX() / cellSize / drawScale - getLandTranslationX());
-			int posY = (int)(event.getY() / cellSize / drawScale - getLandTranslationY());
+			int posX = (int)((event.getX() / cellSize - getLandTranslationX()) / drawScale);
+			int posY = (int)((event.getY() / cellSize - getLandTranslationY()) / drawScale);
 			switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 				case MotionEvent.ACTION_MOVE:
