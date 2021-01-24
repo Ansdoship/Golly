@@ -3,6 +3,7 @@ package com.ansdoship.golly.view;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -33,7 +34,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	private int invalidateLandSum;
 
     private final SurfaceHolder mHolder;
-    private volatile boolean isDraw;
+    private volatile boolean isLandInvalidate;
     private volatile boolean threadActive;
     private volatile boolean scaleMode;
 
@@ -106,7 +107,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 		setKeepScreenOn(true);
-		isDraw = false;
+		isLandInvalidate = false;
 		threadActive = false;
 		scaleMode = false;
 		cellPaint = new Paint();
@@ -143,15 +144,13 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 			@Override
 			public void run() {
 				while (threadActive) {
-					if (isDraw) {
-						drawLand();
-						if (System.currentTimeMillis() - drawTime >= 1000) {
-							drawFps = drawSum + 1;
-							drawSum = 0;
-							drawTime = System.currentTimeMillis();
-						}
-						drawSum ++;
+					drawLand();
+					if (System.currentTimeMillis() - drawTime >= 1000) {
+						drawFps = drawSum + 1;
+						drawSum = 0;
+						drawTime = System.currentTimeMillis();
 					}
+					drawSum ++;
 				}
 			}
 		}).start();
@@ -159,7 +158,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 			@Override
 			public void run() {
 				while (threadActive) {
-					if (isDraw) {
+					if (isLandInvalidate) {
 						mLand.invalidate();
 						if (System.currentTimeMillis() - invalidateLandTime >= 1000) {
 							invalidateLandFps = invalidateLandSum + 1;
@@ -180,6 +179,9 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void drawLand () {
+		if (mLand == null) {
+			return;
+		}
         Canvas mCanvas = mHolder.lockCanvas();
 		Matrix matrix = new Matrix();
 		matrix.setTranslate(getLandTranslationX() / drawScale, getLandTranslationY() / drawScale);
@@ -209,33 +211,42 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	private double scaleModeTouchDistRecord;
 	private float scaleModeRecordX;
 	private float scaleModeRecordY;
+	private boolean pointer0Changed;
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		if (scaleMode) {
 			switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_DOWN:
+					pointer0Changed = false;
 					scaleModeRecordX = event.getX(0);
 					scaleModeRecordY = event.getY(0);
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
+					if (event.getPointerCount() == 2) {
+						pointer0Changed = false;
+					}
 					scaleModeTouchDistRecord = spacing(event);
 					break;
-				case MotionEvent.ACTION_MOVE:
-					double newTouchDist = spacing(event);
-					if(newTouchDist != 0) {
-						double touchDist = newTouchDist - scaleModeTouchDistRecord;
-						addDrawScale((float) (0.005 * DensityUtils.px2dp(touchDist)));
-						scaleModeTouchDistRecord = newTouchDist;
+				case MotionEvent.ACTION_POINTER_UP:
+					if (event.getPointerCount() == 2) {
+						pointer0Changed = true;
 					}
-					addLandTranslationX(event.getX(0) - scaleModeRecordX);
-					addLandTranslationY(event.getY(0) - scaleModeRecordY);
-					scaleModeRecordX = event.getX(0);
-					scaleModeRecordY = event.getY(0);
 					break;
-			}
-			if (!isDraw) {
-				drawLand();
+				case MotionEvent.ACTION_MOVE:
+					if (!pointer0Changed) {
+						double newTouchDist = spacing(event);
+						if(newTouchDist != 0) {
+							double touchDist = newTouchDist - scaleModeTouchDistRecord;
+							addDrawScale((float) (0.005 * DensityUtils.px2dp(touchDist)));
+							scaleModeTouchDistRecord = newTouchDist;
+						}
+						addLandTranslationX(event.getX(0) - scaleModeRecordX);
+						addLandTranslationY(event.getY(0) - scaleModeRecordY);
+						scaleModeRecordX = event.getX(0);
+						scaleModeRecordY = event.getY(0);
+					}
+					break;
 			}
 		}
 		else {
@@ -255,7 +266,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		if(event.getPointerCount() >= 2) {
 			float x = event.getX(0) - event.getX(1);
 			float y = event.getY(0) - event.getY(1);
-			return Math.pow(x * x + y * y, 0.5);
+			return Math.pow(Math.pow(x, 2) + Math.pow(y, 2), 0.5);
 		}
 		return 0;
 	}
@@ -268,25 +279,22 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			}
 		}
-		if (!isDraw) {
-			drawLand();
-		}
 	}
 	
 	public void stopGame() {
-		isDraw = false;
+		isLandInvalidate = false;
 	}
 
 	public void startGame() {
-		isDraw = true;
+		isLandInvalidate = true;
 	}
 
-	public boolean isGameRendering() {
-		return isDraw;
+	public boolean isLandInvalidate() {
+		return isLandInvalidate;
 	}
 
-	public void setGameRendering(boolean isRendering) {
-		isDraw = isRendering;
+	public void setLandInvalidate(boolean landInvalidate) {
+		isLandInvalidate = landInvalidate;
 	}
 
 	public void setCellColor(int cellColor) {
@@ -329,9 +337,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void clear() {
 		mLand.clear();
-		if (!isDraw) {
-			drawLand();
-		}
 	}
 
 	public void reset() {
@@ -340,9 +345,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void reset(double aliveProbability) {
 		mLand.reset(aliveProbability);
-		if (!isDraw) {
-			drawLand();
-		}
 	}
 
 	public void setDrawScale(float drawScale) {
@@ -351,9 +353,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		this.drawScale = newScale;
 		addLandTranslationX(offset * getLand().getWidth() * 0.5f);
 		addLandTranslationY(offset * getLand().getHeight() * 0.5f);
-		if (!isDraw) {
-			drawLand();
-		}
 		if (onDrawScaleChangeListener != null) {
 			onDrawScaleChangeListener.onDrawScaleChange(drawScale);
 		}

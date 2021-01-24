@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 	private Button btnRecenterMap;
 	private StringBuilder gameInfoBuilder;
 
-	private boolean isGameRendering;
+	private boolean isLandInvalidate;
 	private double aliveProbability;
 
 	private int aliveCellCount;
@@ -62,15 +62,9 @@ public class MainActivity extends AppCompatActivity {
 					break;
 				case R.id.btn_clear:
 					landView.clear();
-					if (!landView.isGameRendering()) {
-						updateGameInfo();
-					}
 					break;
 				case R.id.btn_reset:
 					landView.reset(aliveProbability);
-					if (!landView.isGameRendering()) {
-						updateGameInfo();
-					}
 					break;
 				case R.id.btn_add_cell:
 					String xStr = etCoordinateX.getText().toString();
@@ -175,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
         landView.setDrawScale(1.0f);
-		isGameRendering = true;
+		isLandInvalidate = true;
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
 		countThreadActive = true;
@@ -232,14 +226,14 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onPause() {
-    	isGameRendering = landView.isGameRendering();
+    	isLandInvalidate = landView.isLandInvalidate();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		landView.setGameRendering(isGameRendering);
+		landView.setLandInvalidate(isLandInvalidate);
 	}
 
 	private void updateGameInfo() {
