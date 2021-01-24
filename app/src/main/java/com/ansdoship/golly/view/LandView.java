@@ -3,7 +3,6 @@ package com.ansdoship.golly.view;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -216,15 +215,17 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		if (scaleMode) {
+			if (pointer0Changed) {
+				scaleModeRecordX = event.getX(0);
+				scaleModeRecordY = event.getY(0);
+			}
 			switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_DOWN:
-					pointer0Changed = false;
-					scaleModeRecordX = event.getX(0);
-					scaleModeRecordY = event.getY(0);
+					pointer0Changed = true;
 					break;
 				case MotionEvent.ACTION_POINTER_DOWN:
 					if (event.getPointerCount() == 2) {
-						pointer0Changed = false;
+						pointer0Changed = true;
 					}
 					scaleModeTouchDistRecord = spacing(event);
 					break;
@@ -234,18 +235,17 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 					}
 					break;
 				case MotionEvent.ACTION_MOVE:
-					if (!pointer0Changed) {
-						double newTouchDist = spacing(event);
-						if(newTouchDist != 0) {
-							double touchDist = newTouchDist - scaleModeTouchDistRecord;
-							addDrawScale((float) (0.005 * DensityUtils.px2dp(touchDist)));
-							scaleModeTouchDistRecord = newTouchDist;
-						}
-						addLandTranslationX(event.getX(0) - scaleModeRecordX);
-						addLandTranslationY(event.getY(0) - scaleModeRecordY);
-						scaleModeRecordX = event.getX(0);
-						scaleModeRecordY = event.getY(0);
+					double newTouchDist = spacing(event);
+					if(newTouchDist != 0) {
+						double touchDist = newTouchDist - scaleModeTouchDistRecord;
+						addDrawScale((float) (0.005 * DensityUtils.px2dp(touchDist)));
+						scaleModeTouchDistRecord = newTouchDist;
 					}
+					addLandTranslationX(event.getX(0) - scaleModeRecordX);
+					addLandTranslationY(event.getY(0) - scaleModeRecordY);
+					scaleModeRecordX = event.getX(0);
+					scaleModeRecordY = event.getY(0);
+					pointer0Changed = false;
 					break;
 			}
 		}
