@@ -1,14 +1,16 @@
 package com.ansdoship.golly.game;
 
-public class Cell {
+class Cell {
 
 	public static final byte STATE_DEAD = 0;
 	public static final byte STATE_ALIVE = 1;
 	
 	private byte state;
+	private int color;
 	
-	public Cell (byte state) {
+	public Cell (byte state, int color) {
 		setState(state);
+		setColor(color);
 	}
 
 	public void alive() {
@@ -34,6 +36,14 @@ public class Cell {
 
 	public byte getState() {
 		return state;
+	}
+
+	public void setColor(int color) {
+		this.color = color;
+	}
+
+	public int getColor() {
+		return color;
 	}
 
 }

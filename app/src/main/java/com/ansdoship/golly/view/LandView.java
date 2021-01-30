@@ -18,7 +18,6 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.core.math.MathUtils;
 
-import com.ansdoship.golly.game.Cell;
 import com.ansdoship.golly.game.Land;
 import com.ansdoship.golly.util.DensityUtils;
 import com.ansdoship.golly.util.ScreenUtils;
@@ -44,7 +43,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	private float landTranslationY;
 	private int cellStrokeSize;
 	private int cellSize;
-	private int cellColor;
 	private int landBackgroundColor;
 	private final Paint cellPaint;
 	private final static Paint eraser;
@@ -116,7 +114,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		cacheCanvas = new Canvas(cacheBitmap);
 		setCellStrokeSize(3);
 		setCellSize(1);
-		setCellColor(Color.BLACK);
 		setLandBackgroundColor(Color.WHITE);
 		VIEW_WIDTH = ScreenUtils.getScreenWidth();
 		VIEW_HEIGHT = ScreenUtils.getScreenRealHeight() / 2;
@@ -192,8 +189,8 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 				cacheCanvas.drawColor(landBackgroundColor);
 				for(int x = 0; x < mLand.getWidth(); x ++) {
 					for(int y = 0; y < mLand.getHeight(); y ++) {
-						Cell cell = mLand.getCell(x, y);
-						if (cell.getState() == Cell.STATE_ALIVE) {
+						if (mLand.isCellAlive(x, y)) {
+							cellPaint.setColor(mLand.getCellColor(x, y));
 							cacheCanvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, cellPaint);
 						}
 					}
@@ -237,9 +234,11 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 				case MotionEvent.ACTION_MOVE:
 					double newTouchDist = spacing(event);
 					if(newTouchDist != 0) {
-						double touchDist = newTouchDist - scaleModeTouchDistRecord;
-						addDrawScale((float) (0.005 * DensityUtils.px2dp(touchDist)));
-						scaleModeTouchDistRecord = newTouchDist;
+						double touchDist = DensityUtils.px2dp(newTouchDist - scaleModeTouchDistRecord);
+						if (touchDist > 1 || touchDist < -1) {
+							addDrawScale((float) (0.005 * touchDist));
+							scaleModeTouchDistRecord = newTouchDist;
+						}
 					}
 					addLandTranslationX(event.getX(0) - scaleModeRecordX);
 					addLandTranslationY(event.getY(0) - scaleModeRecordY);
@@ -275,7 +274,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
 			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
 				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
-					mLand.getCell(x, y).alive();
+					mLand.setCellAlive(x, y);
 				}
 			}
 		}
@@ -295,15 +294,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void setLandInvalidate(boolean landInvalidate) {
 		isLandInvalidate = landInvalidate;
-	}
-
-	public void setCellColor(int cellColor) {
-		this.cellColor = cellColor;
-		cellPaint.setColor(cellColor);
-	}
-
-	public int getCellColor() {
-		return cellColor;
 	}
 
 	public void setCellSize(int cellSize) {

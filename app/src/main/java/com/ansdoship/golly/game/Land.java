@@ -7,6 +7,7 @@ public class Land {
 
 	private Cell[][] cellMap;
 	private int dayCount;
+	private int aliveCellCount;
 
 	public static final double ALIVE_PROBABILITY_DEFAULT = 0.5;
 	public static final double ALIVE_PROBABILITY_ALL_DEAD = 0;
@@ -43,9 +44,11 @@ public class Land {
 	}
 
 	public synchronized void init (double aliveProbability) {
+		aliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				Cell cell = new Cell(deadOrAlive(aliveProbability));
+				Cell cell = new Cell(deadOrAlive(aliveProbability), 0xFF000000);
+				aliveCellCount += cell.getState();
 				cellMap[x][y] = cell;
 			}
 		}
@@ -56,30 +59,26 @@ public class Land {
 		Land stepLand = new Land(width, height, ALIVE_PROBABILITY_ALL_DEAD);
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				Cell cell = getCell(x, y);
-				Cell stepCell = stepLand.getCell(x, y);
 				int n = getPosCellCount(x, y);
-				if (cell.getState() == Cell.STATE_ALIVE) {
-					if (n < 2) {
-						stepCell.die();
+				if (isCellAlive(x, y)) {
+					if (n < 2 || n > 3) {
+						stepLand.setCellDie(x, y);
 					}
-					if (n == 2 || n == 3) {
-						stepCell.alive();
-					}
-					if (n > 3) {
-						stepCell.die();
+					else {
+						stepLand.setCellAlive(x, y);
 					}
 				}
 				else {
-					if (stepCell.getState() == Cell.STATE_DEAD) {
+					if (stepLand.isCellDead(x, y)) {
 						if (n == 3) {
-							stepCell.alive();
+							stepLand.setCellAlive(x, y);
 						}
 					}
 				}
 			}
 		}
 		this.cellMap = stepLand.cellMap;
+		this.aliveCellCount = stepLand.aliveCellCount;
 	}
 
 	public void clear () {
@@ -91,12 +90,11 @@ public class Land {
 		for (int x = posX - 1; x <= posX + 1; x ++) {
 			for (int y = posY - 1; y <= posY + 1; y ++) {
 				if (x >= 0 && x < width && y >= 0 && y < height) {
-					Cell cell = getCell(x, y);
 					if (x == posX && y == posY) {
 						count += 0;
 					}
 					else {
-						count += cell.getState();
+						count += getCellState(x, y);
 					}
 				}
 			}
@@ -104,8 +102,34 @@ public class Land {
 		return count;
 	}
 
-	public Cell getCell(int posX, int posY) {
-		return cellMap[posX][posY];
+	private byte getCellState(int posX, int posY) {
+		return cellMap[posX][posY].getState();
+	}
+
+	public boolean isCellAlive(int posX, int posY) {
+		return cellMap[posX][posY].getState() == Cell.STATE_ALIVE;
+	}
+
+	public boolean isCellDead(int posX, int posY) {
+		return cellMap[posX][posY].getState() == Cell.STATE_DEAD;
+	}
+
+	public void setCellAlive(int posX, int posY) {
+		cellMap[posX][posY].alive();
+		aliveCellCount ++;
+	}
+
+	public void setCellDie(int posX, int posY) {
+		cellMap[posX][posY].die();
+		aliveCellCount --;
+	}
+
+	public int getCellColor(int posX, int posY) {
+		return cellMap[posX][posY].getColor();
+	}
+
+	public void setCellColor(int posX, int posY, int color) {
+		cellMap[posX][posY].setColor(color);
 	}
 
 	private byte deadOrAlive (double aliveProbability) {
@@ -120,18 +144,27 @@ public class Land {
 		}
 	}
 
+	@Deprecated
 	public int countAliveCell() {
 		int aliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				aliveCellCount += getCell(x, y).getState();
+				aliveCellCount += getCellState(x, y);
 			}
 		}
 		return aliveCellCount;
 	}
 
-	public int countCell() {
+	public int getCellCount() {
 		return getWidth() * getHeight();
+	}
+
+	public int getAliveCellCount() {
+		return aliveCellCount;
+	}
+
+	public int getDeadCellCount() {
+		return getCellCount() - getAliveCellCount();
 	}
 
 	public int getDayCount() {

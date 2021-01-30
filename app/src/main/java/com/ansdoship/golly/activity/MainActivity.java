@@ -44,11 +44,6 @@ public class MainActivity extends AppCompatActivity {
 	private boolean isLandInvalidate;
 	private double aliveProbability;
 
-	private int aliveCellCount;
-	private int deadCellCount;
-	private int cellCount;
-	private boolean countThreadActive;
-
 	private final View.OnClickListener clickListener = new View.OnClickListener() {
 		@SuppressLint("NonConstantResourceId")
 		@Override
@@ -172,22 +167,10 @@ public class MainActivity extends AppCompatActivity {
 		isLandInvalidate = true;
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
-		countThreadActive = true;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (countThreadActive) {
-					aliveCellCount = landView.getLand().countAliveCell();
-					cellCount = landView.getLand().countCell();
-					deadCellCount = cellCount - aliveCellCount;
-				}
-			}
-		}).start();
     }
 
 	@Override
 	protected void onDestroy() {
-		countThreadActive = false;
 		landView.release();
 		super.onDestroy();
 	}
@@ -250,11 +233,11 @@ public class MainActivity extends AppCompatActivity {
 						.append("\n")
 						.append(getResources().getString(R.string.free_space))
 						.append(": ")
-						.append(deadCellCount)
+						.append(landView.getLand().getDeadCellCount())
 						.append("\n")
 						.append(getResources().getString(R.string.alive_cell_count))
 						.append(": ")
-						.append(aliveCellCount);
+						.append(landView.getLand().getAliveCellCount());
 				tvGameInfo.setText(gameInfoBuilder.toString());
 			}
 		});
