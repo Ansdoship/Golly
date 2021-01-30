@@ -1,6 +1,7 @@
 package com.ansdoship.golly.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.math.MathUtils;
 
 import com.ansdoship.golly.game.Land;
+import com.ansdoship.golly.util.ApplicationUtils;
 import com.ansdoship.golly.view.LandView;
 import com.ansdoship.golly.R;
 
@@ -23,7 +25,7 @@ import java.text.DecimalFormat;
 public class MainActivity extends AppCompatActivity {
 
 	// Widgets
-	private FrameLayout container;
+	private FrameLayout flContainer;
 	private LandView landView;
 	private Button btnStop;
 	private Button btnStart;
@@ -117,8 +119,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
-        container = findViewById(R.id.container);
+        flContainer = findViewById(R.id.fl_container);
         btnStop = findViewById(R.id.btn_stop);
         btnStop.setOnClickListener(clickListener);
         btnStart = findViewById(R.id.btn_start);
@@ -148,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         btnRecenterMap.setOnClickListener(clickListener);
 
         landView = new LandView(this);
-        container.addView(landView);
+        flContainer.addView(landView);
         gameInfoBuilder = new StringBuilder();
         landView.setOnInvalidateListener(new LandView.OnInvalidateListener() {
 			@Override
@@ -168,6 +171,12 @@ public class MainActivity extends AppCompatActivity {
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
     }
+
+	@Override
+	public void finish() {
+		super.finish();
+		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+	}
 
 	@Override
 	protected void onDestroy() {
