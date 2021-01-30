@@ -109,7 +109,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		scaleMode = false;
 		cellPaint = new Paint();
 		cellPaint.setAntiAlias(false);
-		setLandSize(ScreenUtils.getScreenWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
+		setLandSize(ScreenUtils.getScreenRealWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
 		cacheBitmap = Bitmap.createBitmap(mLand.getWidth(), mLand.getHeight(), Bitmap.Config.ARGB_8888);
 		cacheCanvas = new Canvas(cacheBitmap);
 		setCellStrokeSize(3);

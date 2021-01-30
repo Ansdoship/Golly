@@ -1,7 +1,6 @@
 package com.ansdoship.golly.activity;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 import android.view.View;
@@ -16,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.math.MathUtils;
 
 import com.ansdoship.golly.game.Land;
-import com.ansdoship.golly.util.ApplicationUtils;
+import com.ansdoship.golly.util.ActivityUtils;
 import com.ansdoship.golly.view.LandView;
 import com.ansdoship.golly.R;
 
@@ -118,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		ActivityUtils.hideActionBar(this);
+		ActivityUtils.hideTitleBar(this);
         setContentView(R.layout.activity_main);
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
@@ -211,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		ActivityUtils.hideNavigationBar(this);
 		landView.setLandInvalidate(isLandInvalidate);
 	}
 
