@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.ansdoship.golly.R;
 import com.ansdoship.golly.util.ActivityUtils;
@@ -37,9 +38,15 @@ public class LogoActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        ActivityUtils.hideNavigationBar(this);
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            ActivityUtils.hideNavigationBar(this);
+            View focus = getCurrentFocus();
+            if (focus != null) {
+                focus.clearFocus();
+            }
+        }
     }
 
 }

@@ -1,9 +1,13 @@
 package com.ansdoship.golly.activity;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.math.MathUtils;
@@ -70,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
 					String yStr = etCoordinateY.getText().toString();
 					int yInt = yStr.equals("") ? 0 : Integer.parseInt(yStr);
 					landView.addCellStroke(xInt, yInt);
-					etCoordinateX.clearFocus();
-					etCoordinateY.clearFocus();
 					break;
 				case R.id.btn_draw_scale:
 					landView.setDrawScale(1.0f);
@@ -238,6 +241,56 @@ public class MainActivity extends AppCompatActivity {
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			ActivityUtils.hideNavigationBar(this);
+			View focus = getCurrentFocus();
+			if (focus != null) {
+				focus.clearFocus();
+			}
+		}
+	}
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		if (event != null) {
+			if (event.getAction() == KeyEvent.ACTION_DOWN) {
+				switch (event.getKeyCode()) {
+					case KeyEvent.KEYCODE_ENTER:
+					case KeyEvent.KEYCODE_NUMPAD_ENTER:
+						clearCoordinateEditTextFocus();
+						break;
+				}
+			}
+		}
+		return super.dispatchKeyEvent(event);
+	}
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent event) {
+		if (event != null) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				if (ActivityUtils.shouldCloseKeyboard(this, event)) {
+					clearCoordinateEditTextFocus();
+				}
+			}
+		}
+		return super.dispatchTouchEvent(event);
+	}
+
+	private void clearCoordinateEditTextFocus() {
+		ActivityUtils.closeKeyboard(this);
+		if (etCoordinateX.hasFocus()) {
+			etCoordinateX.clearFocus();
+		}
+		if (etCoordinateY.hasFocus()) {
+			etCoordinateY.clearFocus();
+		}
+		ActivityUtils.hideNavigationBar(this);
 	}
 
 	private void updateGameInfo() {
