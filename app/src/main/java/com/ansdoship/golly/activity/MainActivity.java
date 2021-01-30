@@ -178,22 +178,8 @@ public class MainActivity extends AppCompatActivity {
 			public void run() {
 				while (countThreadActive) {
 					aliveCellCount = landView.getLand().countAliveCell();
-				}
-			}
-		}).start();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (countThreadActive) {
-					deadCellCount = landView.getLand().countDeadCell();
-				}
-			}
-		}).start();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (countThreadActive) {
 					cellCount = landView.getLand().countCell();
+					deadCellCount = cellCount - aliveCellCount;
 				}
 			}
 		}).start();

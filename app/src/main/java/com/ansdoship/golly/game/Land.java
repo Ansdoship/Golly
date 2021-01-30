@@ -130,10 +130,6 @@ public class Land {
 		return aliveCellCount;
 	}
 
-	public int countDeadCell() {
-		return countCell() - countAliveCell();
-	}
-
 	public int countCell() {
 		return getWidth() * getHeight();
 	}
