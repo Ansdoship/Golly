@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
@@ -20,6 +18,7 @@ import androidx.core.math.MathUtils;
 
 import com.ansdoship.golly.game.Land;
 import com.ansdoship.golly.util.DensityUtils;
+import com.ansdoship.golly.util.DrawUtils;
 import com.ansdoship.golly.util.ScreenUtils;
 
 public class LandView extends SurfaceView implements SurfaceHolder.Callback {
@@ -45,15 +44,6 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	private int cellSize;
 	private int landBackgroundColor;
 	private final Paint cellPaint;
-	private final static Paint eraser;
-	static {
-		eraser = new Paint();
-		eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-	}
-	private final static Paint bitmapPaint;
-	static {
-		bitmapPaint = new Paint();
-	}
 	private final Bitmap cacheBitmap;
 	private final Canvas cacheCanvas;
 
@@ -184,8 +174,8 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		matrix.postScale(drawScale, drawScale);
         if (mCanvas != null) {
         	synchronized (mHolder) {
-				mCanvas.drawPaint(eraser);
-				cacheCanvas.drawPaint(eraser);
+				mCanvas.drawPaint(DrawUtils.getEraser());
+				cacheCanvas.drawPaint(DrawUtils.getEraser());
 				cacheCanvas.drawColor(landBackgroundColor);
 				for(int x = 0; x < mLand.getWidth(); x ++) {
 					for(int y = 0; y < mLand.getHeight(); y ++) {
@@ -195,7 +185,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 						}
 					}
 				}
-				mCanvas.drawBitmap(cacheBitmap, matrix, bitmapPaint);
+				mCanvas.drawBitmap(cacheBitmap, matrix, DrawUtils.getBitmapPaint());
 			}
 			mHolder.unlockCanvasAndPost(mCanvas);
 			if (onInvalidateListener != null) {

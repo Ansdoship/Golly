@@ -2,6 +2,8 @@ package com.ansdoship.golly.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.math.MathUtils;
 
@@ -116,8 +119,7 @@ public class MainActivity extends AppCompatActivity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		ActivityUtils.hideActionBar(this);
-		ActivityUtils.hideTitleBar(this);
+		ActivityUtils.hideStatusBar(this);
         setContentView(R.layout.activity_main);
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
@@ -213,6 +215,29 @@ public class MainActivity extends AppCompatActivity {
 		super.onResume();
 		ActivityUtils.hideNavigationBar(this);
 		landView.setLandInvalidate(isLandInvalidate);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@SuppressLint("NonConstantResourceId")
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.mi_description:
+				new AlertDialog.Builder(this).setMessage(R.string.description_content).create().show();
+				return true;
+			case R.id.mi_donate:
+				//new AlertDialog.Builder(this).setView().create().show();
+				return true;
+			case R.id.mi_info:
+				new AlertDialog.Builder(this).setView(R.layout.dialog_info).create().show();
+				return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void updateGameInfo() {

@@ -22,4 +22,16 @@
     <string name="map_height">Map Height</string>
     <string name="invalidate_map_fps">Invalidate Map FPS</string>
     <string name="recenter_map">Recenter Map</string>
+    <string name="donate">Donate</string>
+    <string name="info">Info</string>
+    <string name="description">Description</string>
+    <string name="copyright_info">Copyright © 2021 AnsdoShip Studio. All rights reserved.</string>
+    <string name="description_content">In Conway\'s game of life, the following laws of survival are laid down: \n
+        1. If the number of living cells around the current cell is equal to 3, the cell state becomes alive after iteration. \n
+        2. If the current cell is alive and the number of living cells around the cell is less than 2 or greater than 3,
+        the cell state becomes dead after iteration. \n
+        3. If the current cell is alive and the number of living cells around the cell is equal to 2 or equal to 3,
+        the cell state remains unchanged after iteration.</string>
+    <string name="source_code_url" translatable="false">https://github.com/Ansdoship/Golly</string>
+    <string name="open_source_info">The app is open source. You can find the source code in GitHub.</string>
 </resources>

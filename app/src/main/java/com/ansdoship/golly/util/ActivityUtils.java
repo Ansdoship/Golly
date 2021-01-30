@@ -1,13 +1,12 @@
 package com.ansdoship.golly.util;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Build;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -26,7 +25,8 @@ public class ActivityUtils {
             uiOptions = View.GONE;
         }
         else {
-            uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         }
         decorView.setSystemUiVisibility(uiOptions);
     }
@@ -35,7 +35,7 @@ public class ActivityUtils {
      * Hide activity's title bar.
      * @param activity the activity which will be hide title bar
      */
-    public static void hideTitleBar(@NonNull Activity activity) {
+    public static void hideStatusBar(@NonNull Activity activity) {
         activity.getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -47,10 +47,16 @@ public class ActivityUtils {
      */
     public static void hideActionBar(@NonNull Activity activity) {
         if (activity instanceof AppCompatActivity) {
-            ((AppCompatActivity) activity).getSupportActionBar().hide();
+           ActionBar actionBar = ((AppCompatActivity) activity).getSupportActionBar();
+           if (actionBar != null) {
+               actionBar.hide();
+           }
         }
         else {
-            activity.getActionBar().hide();
+            android.app.ActionBar actionBar = activity.getActionBar();
+            if (actionBar != null) {
+                actionBar.hide();
+            }
         }
     }
 

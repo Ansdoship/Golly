@@ -17,7 +17,7 @@ public class LogoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityUtils.hideActionBar(this);
-        ActivityUtils.hideTitleBar(this);
+        ActivityUtils.hideStatusBar(this);
         setContentView(R.layout.activity_logo);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         new Timer().schedule(new TimerTask() {
