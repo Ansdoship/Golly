@@ -115,7 +115,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		setCellStrokeSize(3);
 		setCellSize(1);
 		setLandBackgroundColor(Color.WHITE);
-		VIEW_WIDTH = ScreenUtils.getScreenWidth();
+		VIEW_WIDTH = ScreenUtils.getScreenRealWidth();
 		VIEW_HEIGHT = ScreenUtils.getScreenRealHeight() / 2;
 		mHolder.setFixedSize(VIEW_WIDTH, VIEW_HEIGHT);
 		setDrawScale(1.0f);

@@ -23,7 +23,6 @@ import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
-	// Widgets
 	private FrameLayout flContainer;
 	private LandView landView;
 	private Button btnStop;
