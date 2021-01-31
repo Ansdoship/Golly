@@ -30,4 +30,5 @@
         2. 若当前细胞为存活状态，且周围8格的存活细胞数量小于2或大于3，迭代后该细胞状态变为死亡。\n
         3. 若当前细胞为存活状态，且周围8格的存活细胞数量等于2或等于3，迭代后该细胞状态不变。</string>
     <string name="open_source_info">该应用程序是开源的。你可以在 GitHub 找到源码。</string>
+    <string name="palette">调色盘</string>
 </resources>

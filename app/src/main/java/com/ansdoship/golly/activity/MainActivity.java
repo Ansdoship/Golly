@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.EditText;
@@ -19,6 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.math.MathUtils;
 
+import com.ansdoship.golly.common.Settings;
 import com.ansdoship.golly.game.Land;
 import com.ansdoship.golly.util.ActivityUtils;
 import com.ansdoship.golly.util.DialogUtils;
@@ -46,8 +49,10 @@ public class MainActivity extends AppCompatActivity {
 	private SeekBar barAliveProbability;
 	private ToggleButton tBtnScaleMode;
 	private Button btnRecenterMap;
-	private StringBuilder gameInfoBuilder;
+	private Button btnPalette;
+	private RadioGroup rgPalette;
 
+	private StringBuilder gameInfoBuilder;
 	private boolean isLandIteration;
 	private double aliveProbability;
 
@@ -94,6 +99,10 @@ public class MainActivity extends AppCompatActivity {
 					break;
 				case R.id.tv_source_code_url:
 					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.source_code_url))));
+					break;
+				case R.id.btn_palette:
+					Settings.getInstance().setPaletteColor(Settings.PALETTE_COLOR_DEFAULT);
+					rgPalette.check(R.id.rbtn_palette_black);
 					break;
 			}
 		}
@@ -163,6 +172,13 @@ public class MainActivity extends AppCompatActivity {
         tBtnScaleMode.setOnClickListener(clickListener);
         btnRecenterMap = findViewById(R.id.btn_recenter_map);
         btnRecenterMap.setOnClickListener(clickListener);
+        btnPalette = findViewById(R.id.btn_palette);
+        btnPalette.setOnClickListener(clickListener);
+
+        rgPalette = findViewById(R.id.rg_palette);
+        rgPalette.check(R.id.rbtn_palette_black);
+        rgPalette.setOnCheckedChangeListener((group, checkedId) ->
+				Settings.getInstance().setPaletteColor(((RadioButton)findViewById(checkedId)).getCurrentTextColor()));
 
         landView = new LandView(this);
         flContainer.addView(landView);

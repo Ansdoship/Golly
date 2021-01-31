@@ -1,5 +1,7 @@
 package com.ansdoship.golly.game;
 
+import com.ansdoship.golly.common.Settings;
+
 public class Land {
 
 	private final int width;
@@ -47,7 +49,7 @@ public class Land {
 		aliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				Cell cell = new Cell(deadOrAlive(aliveProbability), 0xFF000000);
+				Cell cell = new Cell(deadOrAlive(aliveProbability), Settings.getInstance().getPaletteColor());
 				aliveCellCount += cell.getState();
 				cellMap[x][y] = cell;
 			}
@@ -60,7 +62,7 @@ public class Land {
 		int stepAliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				stepCellMap[x][y] = new Cell(Cell.STATE_DEAD, 0xFF000000);
+				stepCellMap[x][y] = new Cell(Cell.STATE_DEAD, Settings.getInstance().getPaletteColor());
 			}
 		}
 		for (int x = 0; x < width; x ++) {

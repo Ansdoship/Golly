@@ -125,6 +125,257 @@
 					android:layout_height="2dp"
 					android:background="@color/black" />
 
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:orientation="horizontal">
+
+					<Button
+						android:id="@+id/btn_palette"
+						style="@style/Widget.AppCompat.Button.Colored"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/palette"
+						android:textSize="18sp" />
+
+					<HorizontalScrollView
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_marginStart="4dp"
+						android:layout_marginLeft="4dp"
+						android:fadeScrollbars="false"
+						android:fadingEdge="none"
+						android:overScrollMode="never"
+						android:scrollbarSize="2dp"
+						android:scrollbarThumbHorizontal="@color/black">
+
+						<RadioGroup
+							android:id="@+id/rg_palette"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_gravity="center_vertical"
+							android:orientation="horizontal"
+							android:paddingRight="4dp">
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_red_dark"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_red_dark"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_red"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/red"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_red_light"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_red_light"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_orange_dark"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_orange_dark"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_orange_light"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_orange_light"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_yellow"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/yellow"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_green_dark"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_green_dark"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_green_light"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_green_light"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_green_bright"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/green_bright"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_cyan"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/cyan"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_blue_bright"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_blue_bright"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_blue_light"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_blue_light"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_blue_dark"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_blue_dark"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_blue"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/blue"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_magenta"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/magenta"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_purple"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/holo_purple"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_black"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/black"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_dark_gray"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/dark_gray"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_gray"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/gray"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_darker_gray"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@android:color/darker_gray"
+								android:textSize="18sp" />
+
+							<RadioButton
+								android:id="@+id/rbtn_palette_light_gray"
+								style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:layout_weight="1"
+								android:text="@string/palette_placeholder_string"
+								android:textColor="@color/light_gray"
+								android:textSize="18sp" />
+
+						</RadioGroup>
+					</HorizontalScrollView>
+
+				</LinearLayout>
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="2dp"
+					android:background="@color/black" />
+
 				<HorizontalScrollView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"

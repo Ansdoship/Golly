@@ -35,4 +35,6 @@
     <string name="source_code_url" translatable="false">https://github.com/Ansdoship/Golly</string>
     <string name="source_code_url_html" translatable="false"><u>https://github.com/Ansdoship/Golly</u></string>
     <string name="open_source_info">The app is open source. You can find the source code in GitHub.</string>
+    <string name="palette_placeholder_string" translatable="false">■</string>
+    <string name="palette">Palette</string>
 </resources>
