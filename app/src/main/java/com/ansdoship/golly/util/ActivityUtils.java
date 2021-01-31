@@ -3,11 +3,9 @@ package com.ansdoship.golly.util;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -17,6 +15,22 @@ import androidx.appcompat.app.AppCompatActivity;
  * A utility class providing functions about activity.
  */
 public class ActivityUtils {
+
+    public static boolean isStatusBarShown(@NonNull Activity activity) {
+        WindowManager.LayoutParams params = activity.getWindow().getAttributes();
+        int flags = params.flags & (~WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        return flags == params.flags;
+    }
+
+    public static int getStatusBarHeight() {
+        return ApplicationUtils.getResources().getDimensionPixelSize(
+                ApplicationUtils.getResources().getIdentifier("status_bar_height", "dimen","android"));
+    }
+
+    public static int getNavigationBarHeight() {
+        return ApplicationUtils.getResources().getDimensionPixelSize(
+                ApplicationUtils.getResources().getIdentifier("navigation_bar_height", "dimen","android"));
+    }
 
     /**
      * Hide activity's navigation bar.
@@ -66,30 +80,13 @@ public class ActivityUtils {
         }
     }
 
-    public static void closeKeyboard(@NonNull Activity activity) {
+    public static void hideSoftKeyboard(@NonNull Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm.isActive() && activity.getCurrentFocus() != null) {
             if (activity.getCurrentFocus().getWindowToken() != null) {
                 imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
         }
-    }
-
-    public static boolean shouldCloseKeyboard(@NonNull Activity activity, MotionEvent event) {
-        View focus = activity.getCurrentFocus();
-        if (focus != null) {
-            if (focus instanceof EditText) {
-                int[] location = {0, 0};
-                focus.getLocationInWindow(location);
-                int left = location[0];
-                int top = location[1];
-                int bottom = top + focus.getHeight();
-                int right = left + focus.getWidth();
-                return !(event.getX() > left) || !(event.getX() < right)
-                        || !(event.getY() > top) || !(event.getY() < bottom);
-            }
-        }
-        return false;
     }
 
 }

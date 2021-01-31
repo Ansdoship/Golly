@@ -1,11 +1,11 @@
 package com.ansdoship.golly.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.view.View;
 import android.widget.Button;
@@ -15,13 +15,14 @@ import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.math.MathUtils;
 
 import com.ansdoship.golly.game.Land;
 import com.ansdoship.golly.util.ActivityUtils;
+import com.ansdoship.golly.util.DialogUtils;
+import com.ansdoship.golly.util.SoftKeyBoardStateChangeObserver;
 import com.ansdoship.golly.view.LandView;
 import com.ansdoship.golly.R;
 
@@ -91,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
 					landView.resetLandTranslationX();
 					landView.resetLandTranslationY();
 					break;
+				case R.id.tv_source_code_url:
+					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.source_code_url))));
+					break;
 			}
 		}
 	};
@@ -121,6 +125,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 		ActivityUtils.hideStatusBar(this);
+		new SoftKeyBoardStateChangeObserver(this).setOnSoftKeyBoardStateChangeListener(
+				isShow -> {
+					if (!isShow) {
+						clearFocus();
+					}
+				}
+		);
         setContentView(R.layout.activity_main);
 		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
@@ -156,18 +167,10 @@ public class MainActivity extends AppCompatActivity {
         landView = new LandView(this);
         flContainer.addView(landView);
         gameInfoBuilder = new StringBuilder();
-        landView.setOnInvalidateListener(new LandView.OnInvalidateListener() {
-			@Override
-			public void onInvalidate() {
-				updateGameInfo();
-			}
-		});
-        landView.setOnDrawScaleChangeListener(new LandView.OnDrawScaleChangeListener() {
-			@Override
-			public void onDrawScaleChange(float newScale) {
-				updateDrawScaleBtn();
-				updateDrawScaleBar();
-			}
+        landView.setOnInvalidateListener(this::updateGameInfo);
+        landView.setOnDrawScaleChangeListener(newScale -> {
+			updateDrawScaleBtn();
+			updateDrawScaleBar();
 		});
         landView.setDrawScale(1.0f);
 		isLandInvalidate = true;
@@ -214,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		ActivityUtils.hideNavigationBar(this);
 		landView.setLandInvalidate(isLandInvalidate);
 	}
 
@@ -229,13 +231,20 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.mi_description:
-				new AlertDialog.Builder(this).setMessage(R.string.description_content).create().show();
+				AlertDialog descriptionDialog = new AlertDialog.Builder(this).setMessage(R.string.description_content).create();
+				descriptionDialog.show();
+				TextView tvMessage = DialogUtils.getMessageTextView(descriptionDialog);
+				if (tvMessage != null) {
+					tvMessage.setTextSize(18);
+				}
 				return true;
 			case R.id.mi_donate:
 				//new AlertDialog.Builder(this).setView().create().show();
 				return true;
 			case R.id.mi_info:
-				new AlertDialog.Builder(this).setView(R.layout.dialog_info).create().show();
+				AlertDialog infoDialog = new AlertDialog.Builder(this).setView(R.layout.dialog_info).create();
+				infoDialog.show();
+				infoDialog.findViewById(R.id.tv_source_code_url).setOnClickListener(clickListener);
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -245,87 +254,52 @@ public class MainActivity extends AppCompatActivity {
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
-			ActivityUtils.hideNavigationBar(this);
-			View focus = getCurrentFocus();
-			if (focus != null) {
-				focus.clearFocus();
+			if (!(getCurrentFocus() instanceof EditText)) {
+				clearFocus();
 			}
 		}
 	}
 
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		if (event != null) {
-			if (event.getAction() == KeyEvent.ACTION_DOWN) {
-				switch (event.getKeyCode()) {
-					case KeyEvent.KEYCODE_ENTER:
-					case KeyEvent.KEYCODE_NUMPAD_ENTER:
-						clearCoordinateEditTextFocus();
-						break;
-				}
-			}
-		}
-		return super.dispatchKeyEvent(event);
-	}
-
-	@Override
-	public boolean dispatchTouchEvent(MotionEvent event) {
-		if (event != null) {
-			if (event.getAction() == MotionEvent.ACTION_DOWN) {
-				if (ActivityUtils.shouldCloseKeyboard(this, event)) {
-					clearCoordinateEditTextFocus();
-				}
-			}
-		}
-		return super.dispatchTouchEvent(event);
-	}
-
-	private void clearCoordinateEditTextFocus() {
-		ActivityUtils.closeKeyboard(this);
-		if (etCoordinateX.hasFocus()) {
-			etCoordinateX.clearFocus();
-		}
-		if (etCoordinateY.hasFocus()) {
-			etCoordinateY.clearFocus();
+	private void clearFocus() {
+		View focus = getCurrentFocus();
+		if (focus != null) {
+			focus.clearFocus();
 		}
 		ActivityUtils.hideNavigationBar(this);
 	}
 
 	private void updateGameInfo() {
-    	runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				gameInfoBuilder.setLength(0);
-				gameInfoBuilder
-						.append(getResources().getString(R.string.map_width))
-						.append(": ")
-						.append(landView.getLand().getWidth())
-						.append("\n")
-						.append(getResources().getString(R.string.map_height))
-						.append(": ")
-						.append(landView.getLand().getHeight())
-						.append("\n")
-						.append(getResources().getString(R.string.day_count))
-						.append(": ")
-						.append(landView.getLand().getDayCount())
-						.append("\n")
-						.append(getResources().getString(R.string.draw_fps))
-						.append(": ")
-						.append(landView.getDrawFps())
-						.append("\n")
-						.append(getResources().getString(R.string.invalidate_map_fps))
-						.append(": ")
-						.append(landView.getInvalidateLandFps())
-						.append("\n")
-						.append(getResources().getString(R.string.free_space))
-						.append(": ")
-						.append(landView.getLand().getDeadCellCount())
-						.append("\n")
-						.append(getResources().getString(R.string.alive_cell_count))
-						.append(": ")
-						.append(landView.getLand().getAliveCellCount());
-				tvGameInfo.setText(gameInfoBuilder.toString());
-			}
+    	runOnUiThread(() -> {
+			gameInfoBuilder.setLength(0);
+			gameInfoBuilder
+					.append(getResources().getString(R.string.map_width))
+					.append(": ")
+					.append(landView.getLand().getWidth())
+					.append("\n")
+					.append(getResources().getString(R.string.map_height))
+					.append(": ")
+					.append(landView.getLand().getHeight())
+					.append("\n")
+					.append(getResources().getString(R.string.day_count))
+					.append(": ")
+					.append(landView.getLand().getDayCount())
+					.append("\n")
+					.append(getResources().getString(R.string.draw_fps))
+					.append(": ")
+					.append(landView.getDrawFps())
+					.append("\n")
+					.append(getResources().getString(R.string.invalidate_map_fps))
+					.append(": ")
+					.append(landView.getInvalidateLandFps())
+					.append("\n")
+					.append(getResources().getString(R.string.free_space))
+					.append(": ")
+					.append(landView.getLand().getDeadCellCount())
+					.append("\n")
+					.append(getResources().getString(R.string.alive_cell_count))
+					.append(": ")
+					.append(landView.getLand().getAliveCellCount());
+			tvGameInfo.setText(gameInfoBuilder.toString());
 		});
 	}
 

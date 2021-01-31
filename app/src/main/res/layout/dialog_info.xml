@@ -24,19 +24,21 @@
         android:layout_marginRight="7sp"
         android:gravity="center_horizontal"
         android:text="@string/copyright_info"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="7sp"
         android:layout_marginLeft="7sp"
-        android:layout_marginTop="7sp"
+        android:layout_marginTop="9sp"
         android:layout_marginEnd="7sp"
         android:layout_marginRight="7sp"
         android:gravity="center_horizontal"
         android:text="@string/authors"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -47,7 +49,8 @@
         android:layout_marginRight="7sp"
         android:gravity="center_horizontal"
         android:text="@string/dobando"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -58,30 +61,34 @@
         android:layout_marginRight="7sp"
         android:gravity="center_horizontal"
         android:text="@string/tianscar"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="7sp"
         android:layout_marginLeft="7sp"
-        android:layout_marginTop="7sp"
+        android:layout_marginTop="9sp"
         android:layout_marginEnd="7sp"
         android:layout_marginRight="7sp"
         android:gravity="center_horizontal"
         android:text="@string/open_source_info"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
     <TextView
+        android:id="@+id/tv_source_code_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="7sp"
         android:layout_marginLeft="7sp"
         android:layout_marginEnd="7sp"
         android:layout_marginRight="7sp"
-        android:layout_marginBottom="32dp"
-        android:autoLink="web"
+        android:layout_marginBottom="28dp"
         android:gravity="center_horizontal"
-        android:text="@string/source_code_url"
-        android:textColor="@color/black" />
+        android:text="@string/source_code_url_html"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textIsSelectable="true"
+        android:textSize="18sp" />
 </LinearLayout>

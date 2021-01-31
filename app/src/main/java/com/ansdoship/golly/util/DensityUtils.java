@@ -22,4 +22,46 @@ public class DensityUtils {
         return pxValue / scale + 0.5;
     }
 
+    /**
+     * convert px to its equivalent sp
+     * @param pxValue the px value
+     * @return the sp value
+     */
+    public static float px2sp(float pxValue) {
+        final float fontScale = ApplicationUtils.getResources().getDisplayMetrics().scaledDensity;
+        return pxValue / fontScale + 0.5f;
+    }
+
+
+    /**
+     * convert sp to its equivalent px
+     * @param spValue the sp value
+     * @return the px value
+     */
+    public static float sp2px(float spValue) {
+        final float fontScale = ApplicationUtils.getResources().getDisplayMetrics().scaledDensity;
+        return spValue * fontScale + 0.5f;
+    }
+
+    /**
+     * convert px to its equivalent sp
+     * @param pxValue the px value
+     * @return the sp value
+     */
+    public static double px2sp(double pxValue) {
+        final float fontScale = ApplicationUtils.getResources().getDisplayMetrics().scaledDensity;
+        return pxValue / fontScale + 0.5;
+    }
+
+
+    /**
+     * convert sp to its equivalent px
+     * @param spValue the sp value
+     * @return the px value
+     */
+    public static double sp2px(double spValue) {
+        final float fontScale = ApplicationUtils.getResources().getDisplayMetrics().scaledDensity;
+        return spValue * fontScale + 0.5;
+    }
+
 }

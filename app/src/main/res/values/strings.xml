@@ -33,5 +33,6 @@
         3. If the current cell is alive and the number of living cells around the cell is equal to 2 or equal to 3,
         the cell state remains unchanged after iteration.</string>
     <string name="source_code_url" translatable="false">https://github.com/Ansdoship/Golly</string>
+    <string name="source_code_url_html" translatable="false"><u>https://github.com/Ansdoship/Golly</u></string>
     <string name="open_source_info">The app is open source. You can find the source code in GitHub.</string>
 </resources>

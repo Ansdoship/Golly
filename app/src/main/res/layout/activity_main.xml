@@ -39,7 +39,8 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_margin="7sp"
-				android:textColor="@color/black" />
+				android:textColor="@color/black"
+				android:textSize="18sp" />
 
 			<View
 				android:layout_width="match_parent"
@@ -70,28 +71,32 @@
 							style="@style/Widget.AppCompat.Button.Colored"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:text="@string/stop" />
+							android:text="@string/stop"
+							android:textSize="18sp" />
 
 						<Button
 							android:id="@+id/btn_start"
 							style="@style/Widget.AppCompat.Button.Colored"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:text="@string/start" />
+							android:text="@string/start"
+							android:textSize="18sp" />
 
 						<Button
 							android:id="@+id/btn_clear"
 							style="@style/Widget.AppCompat.Button.Colored"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:text="@string/clear" />
+							android:text="@string/clear"
+							android:textSize="18sp" />
 
 						<Button
 							android:id="@+id/btn_reset"
 							style="@style/Widget.AppCompat.Button.Colored"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:text="@string/reset" />
+							android:text="@string/reset"
+							android:textSize="18sp" />
 
 					</LinearLayout>
 				</HorizontalScrollView>
@@ -105,7 +110,8 @@
 						android:id="@+id/btn_alive_probability"
 						style="@style/Widget.AppCompat.Button.Colored"
 						android:layout_width="wrap_content"
-						android:layout_height="wrap_content" />
+						android:layout_height="wrap_content"
+						android:textSize="18sp" />
 
 					<SeekBar
 						android:id="@+id/bar_alive_probability"
@@ -143,8 +149,9 @@
 							android:autofillHints="1"
 							android:hint="@string/coordinate_x"
 							android:inputType="number"
-							android:maxLength="10"
-							android:maxLines="1" />
+							android:maxLength="9"
+							android:maxLines="1"
+							android:textSize="18sp" />
 
 						<EditText
 							android:id="@+id/et_coordinate_y"
@@ -154,15 +161,17 @@
 							android:autofillHints="1"
 							android:hint="@string/coordinate_y"
 							android:inputType="number"
-							android:maxLength="10"
-							android:maxLines="1" />
+							android:maxLength="9"
+							android:maxLines="1"
+							android:textSize="18sp" />
 
 						<Button
 							android:id="@+id/btn_add_cell"
 							style="@style/Widget.AppCompat.Button.Colored"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:text="@string/add_cell" />
+							android:text="@string/add_cell"
+							android:textSize="18sp" />
 
 					</LinearLayout>
 				</HorizontalScrollView>
@@ -192,14 +201,16 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:textOff="@string/scale_mode_off"
-							android:textOn="@string/scale_mode_on" />
+							android:textOn="@string/scale_mode_on"
+							android:textSize="18sp" />
 
 						<Button
 							android:id="@+id/btn_recenter_map"
 							style="@style/Widget.AppCompat.Button.Colored"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:text="@string/recenter_map" />
+							android:text="@string/recenter_map"
+							android:textSize="18sp" />
 
 					</LinearLayout>
 				</HorizontalScrollView>
@@ -213,7 +224,8 @@
 						android:id="@+id/btn_draw_scale"
 						style="@style/Widget.AppCompat.Button.Colored"
 						android:layout_width="wrap_content"
-						android:layout_height="wrap_content" />
+						android:layout_height="wrap_content"
+						android:textSize="18sp" />
 
 					<SeekBar
 						android:id="@+id/bar_draw_scale"

@@ -126,33 +126,27 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
 		threadActive = true;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (threadActive) {
-					drawLand();
-					if (System.currentTimeMillis() - drawTime >= 1000) {
-						drawFps = drawSum + 1;
-						drawSum = 0;
-						drawTime = System.currentTimeMillis();
-					}
-					drawSum ++;
+		new Thread(() -> {
+			while (threadActive) {
+				drawLand();
+				if (System.currentTimeMillis() - drawTime >= 1000) {
+					drawFps = drawSum + 1;
+					drawSum = 0;
+					drawTime = System.currentTimeMillis();
 				}
+				drawSum ++;
 			}
 		}).start();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (threadActive) {
-					if (isLandInvalidate) {
-						mLand.invalidate();
-						if (System.currentTimeMillis() - invalidateLandTime >= 1000) {
-							invalidateLandFps = invalidateLandSum + 1;
-							invalidateLandSum = 0;
-							invalidateLandTime = System.currentTimeMillis();
-						}
-						invalidateLandSum ++;
+		new Thread(() -> {
+			while (threadActive) {
+				if (isLandInvalidate) {
+					mLand.invalidate();
+					if (System.currentTimeMillis() - invalidateLandTime >= 1000) {
+						invalidateLandFps = invalidateLandSum + 1;
+						invalidateLandSum = 0;
+						invalidateLandTime = System.currentTimeMillis();
 					}
+					invalidateLandSum ++;
 				}
 			}
 		}).start();
@@ -241,8 +235,9 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		else {
 			int posX = (int)((event.getX() / cellSize - getLandTranslationX()) / drawScale);
 			int posY = (int)((event.getY() / cellSize - getLandTranslationY()) / drawScale);
-			switch (event.getAction()) {
+			switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_POINTER_DOWN:
 				case MotionEvent.ACTION_MOVE:
 					addCellStroke(posX, posY);
 					break;
