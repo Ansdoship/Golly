@@ -94,6 +94,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public LandView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+		setLayerType(LAYER_TYPE_HARDWARE, null);
 		mHolder = getHolder();
 		mHolder.addCallback(this);
 		mHolder.setFormat(PixelFormat.TRANSLUCENT);
