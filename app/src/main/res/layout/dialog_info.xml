@@ -85,7 +85,7 @@
         android:layout_marginLeft="7sp"
         android:layout_marginEnd="7sp"
         android:layout_marginRight="7sp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="24dp"
         android:gravity="center_horizontal"
         android:text="@string/source_code_url_html"
         android:textColor="@android:color/holo_blue_dark"

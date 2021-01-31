@@ -54,31 +54,40 @@ public class Land {
 		}
 	}
 
-	public synchronized void invalidate () {
+	public synchronized void iteration () {
 		dayCount ++;
-		Land stepLand = new Land(width, height, ALIVE_PROBABILITY_ALL_DEAD);
+		Cell[][] stepCellMap = new Cell[width][height];
+		int stepAliveCellCount = 0;
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
+				stepCellMap[x][y] = new Cell(Cell.STATE_DEAD, 0xFF000000);
+			}
+		}
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
 				int n = getPosCellCount(x, y);
 				if (isCellAlive(x, y)) {
 					if (n < 2 || n > 3) {
-						stepLand.setCellDie(x, y);
+						stepCellMap[x][y].die();
+						stepAliveCellCount --;
 					}
 					else {
-						stepLand.setCellAlive(x, y);
+						stepCellMap[x][y].alive();
+						stepAliveCellCount ++;
 					}
 				}
 				else {
-					if (stepLand.isCellDead(x, y)) {
+					if (stepCellMap[x][y].getState() == Cell.STATE_DEAD) {
 						if (n == 3) {
-							stepLand.setCellAlive(x, y);
+							stepCellMap[x][y].alive();
+							stepAliveCellCount ++;
 						}
 					}
 				}
 			}
 		}
-		this.cellMap = stepLand.cellMap;
-		this.aliveCellCount = stepLand.aliveCellCount;
+		cellMap = stepCellMap;
+		aliveCellCount = stepAliveCellCount;
 	}
 
 	public void clear () {
@@ -142,17 +151,6 @@ public class Land {
 		else {
 			return Cell.STATE_DEAD;
 		}
-	}
-
-	@Deprecated
-	public int countAliveCell() {
-		int aliveCellCount = 0;
-		for (int x = 0; x < width; x ++) {
-			for (int y = 0; y < height; y ++) {
-				aliveCellCount += getCellState(x, y);
-			}
-		}
-		return aliveCellCount;
 	}
 
 	public int getCellCount() {

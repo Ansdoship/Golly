@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 	private Button btnRecenterMap;
 	private StringBuilder gameInfoBuilder;
 
-	private boolean isLandInvalidate;
+	private boolean isLandIteration;
 	private double aliveProbability;
 
 	private final View.OnClickListener clickListener = new View.OnClickListener() {
@@ -167,13 +167,13 @@ public class MainActivity extends AppCompatActivity {
         landView = new LandView(this);
         flContainer.addView(landView);
         gameInfoBuilder = new StringBuilder();
-        landView.setOnInvalidateListener(this::updateGameInfo);
+        landView.setOnDrawLandListener(this::updateGameInfo);
         landView.setOnDrawScaleChangeListener(newScale -> {
 			updateDrawScaleBtn();
 			updateDrawScaleBar();
 		});
         landView.setDrawScale(1.0f);
-		isLandInvalidate = true;
+		isLandIteration = true;
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
     }
@@ -210,14 +210,14 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onPause() {
-    	isLandInvalidate = landView.isLandInvalidate();
+    	isLandIteration = landView.isLandIteration();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		landView.setLandInvalidate(isLandInvalidate);
+		landView.setLandIteration(isLandIteration);
 	}
 
 	@Override
@@ -288,9 +288,9 @@ public class MainActivity extends AppCompatActivity {
 					.append(": ")
 					.append(landView.getDrawFps())
 					.append("\n")
-					.append(getResources().getString(R.string.invalidate_map_fps))
+					.append(getResources().getString(R.string.iteration_map_fps))
 					.append(": ")
-					.append(landView.getInvalidateLandFps())
+					.append(landView.getIterationLandFps())
 					.append("\n")
 					.append(getResources().getString(R.string.free_space))
 					.append(": ")

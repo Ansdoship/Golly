@@ -20,7 +20,7 @@
     <string name="scale_mode_off">Scale Mode Off</string>
     <string name="map_width">Map Width</string>
     <string name="map_height">Map Height</string>
-    <string name="invalidate_map_fps">Invalidate Map FPS</string>
+    <string name="iteration_map_fps">Iteration Map FPS</string>
     <string name="recenter_map">Recenter Map</string>
     <string name="donate">Donate</string>
     <string name="info">Info</string>

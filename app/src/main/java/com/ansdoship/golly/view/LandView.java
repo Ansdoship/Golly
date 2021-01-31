@@ -26,12 +26,12 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	private int drawFps;
 	private long drawTime;
 	private int drawSum;
-	private int invalidateLandFps;
-	private long invalidateLandTime;
-	private int invalidateLandSum;
+	private int iterationLandFps;
+	private long iterationLandTime;
+	private int iterationLandSum;
 
     private final SurfaceHolder mHolder;
-    private volatile boolean isLandInvalidate;
+    private volatile boolean isLandIteration;
     private volatile boolean threadActive;
     private volatile boolean scaleMode;
 
@@ -49,10 +49,10 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private float drawScale;
 
-	private OnInvalidateListener onInvalidateListener;
+	private OnDrawLandListener onDrawLandListener;
 
-	public interface OnInvalidateListener {
-		void onInvalidate();
+	public interface OnDrawLandListener {
+		void onDrawLand();
 	}
 
 	private OnDrawScaleChangeListener onDrawScaleChangeListener;
@@ -61,12 +61,12 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		void onDrawScaleChange(float newScale);
 	}
 
-	public void setOnInvalidateListener(OnInvalidateListener onInvalidateListener) {
-		this.onInvalidateListener = onInvalidateListener;
+	public void setOnDrawLandListener(OnDrawLandListener onDrawLandListener) {
+		this.onDrawLandListener = onDrawLandListener;
 	}
 
-	public OnInvalidateListener getOnInvalidateListener() {
-		return onInvalidateListener;
+	public OnDrawLandListener getOnDrawLandListener() {
+		return onDrawLandListener;
 	}
 
 	public void setOnDrawScaleChangeListener(OnDrawScaleChangeListener onDrawScaleChangeListener) {
@@ -94,7 +94,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 		setKeepScreenOn(true);
-		isLandInvalidate = false;
+		isLandIteration = false;
 		threadActive = false;
 		scaleMode = false;
 		cellPaint = new Paint();
@@ -112,11 +112,11 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		resetLandTranslationX();
 		resetLandTranslationY();
 		drawFps = 0;
-		invalidateLandFps = 0;
+		iterationLandFps = 0;
 		drawTime = 0;
-		invalidateLandTime = 0;
+		iterationLandTime = 0;
 		drawSum = 0;
-		invalidateLandSum = 0;
+		iterationLandSum = 0;
 	}
 
 	@Override
@@ -139,14 +139,14 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		}).start();
 		new Thread(() -> {
 			while (threadActive) {
-				if (isLandInvalidate) {
-					mLand.invalidate();
-					if (System.currentTimeMillis() - invalidateLandTime >= 1000) {
-						invalidateLandFps = invalidateLandSum + 1;
-						invalidateLandSum = 0;
-						invalidateLandTime = System.currentTimeMillis();
+				if (isLandIteration) {
+					mLand.iteration();
+					if (System.currentTimeMillis() - iterationLandTime >= 1000) {
+						iterationLandFps = iterationLandSum + 1;
+						iterationLandSum = 0;
+						iterationLandTime = System.currentTimeMillis();
 					}
-					invalidateLandSum ++;
+					iterationLandSum ++;
 				}
 			}
 		}).start();
@@ -182,8 +182,8 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 				mCanvas.drawBitmap(cacheBitmap, matrix, DrawUtils.getBitmapPaint());
 			}
 			mHolder.unlockCanvasAndPost(mCanvas);
-			if (onInvalidateListener != null) {
-				onInvalidateListener.onInvalidate();
+			if (onDrawLandListener != null) {
+				onDrawLandListener.onDrawLand();
 			}
 		}
     }
@@ -268,19 +268,19 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 	
 	public void stopGame() {
-		isLandInvalidate = false;
+		isLandIteration = false;
 	}
 
 	public void startGame() {
-		isLandInvalidate = true;
+		isLandIteration = true;
 	}
 
-	public boolean isLandInvalidate() {
-		return isLandInvalidate;
+	public boolean isLandIteration() {
+		return isLandIteration;
 	}
 
-	public void setLandInvalidate(boolean landInvalidate) {
-		isLandInvalidate = landInvalidate;
+	public void setLandIteration(boolean landIteration) {
+		isLandIteration = landIteration;
 	}
 
 	public void setCellSize(int cellSize) {
@@ -308,8 +308,8 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		return drawFps;
 	}
 
-	public int getInvalidateLandFps() {
-		return invalidateLandFps;
+	public int getIterationLandFps() {
+		return iterationLandFps;
 	}
 
 	public void clear() {

@@ -6,14 +6,13 @@ import android.graphics.PorterDuffXfermode;
 
 public class DrawUtils {
 
-    private final static Paint eraser;
+    private final static Paint eraser = new Paint();
     static {
-        eraser = new Paint();
         eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
     }
-    private final static Paint bitmapPaint;
+    private final static Paint bitmapPaint = new Paint();
     static {
-        bitmapPaint = new Paint();
+        bitmapPaint.setAntiAlias(false);
     }
 
     public static Paint getEraser() {

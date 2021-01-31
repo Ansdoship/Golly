@@ -19,7 +19,7 @@
     <string name="scale_mode_off">缩放模式 关</string>
     <string name="map_width">地图宽度</string>
     <string name="map_height">地图高度</string>
-    <string name="invalidate_map_fps">刷新地图帧率</string>
+    <string name="iteration_map_fps">地图刷新率</string>
     <string name="recenter_map">地图居中</string>
     <string name="donate">捐赠</string>
     <string name="info">关于</string>
