@@ -16,12 +16,19 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.core.math.MathUtils;
 
+import com.ansdoship.golly.common.Settings;
 import com.ansdoship.golly.game.Land;
 import com.ansdoship.golly.util.DensityUtils;
 import com.ansdoship.golly.util.DrawUtils;
 import com.ansdoship.golly.util.ScreenUtils;
 
 public class LandView extends SurfaceView implements SurfaceHolder.Callback {
+
+	public final int LAND_WIDTH = 256;
+	public final int LAND_HEIGHT = 256;
+
+	public final float DRAW_SCALE_MIN = 1.0f;
+	public final float DRAW_SCALE_MAX = 20.0f;
 
 	private int drawFps;
 	private long drawTime;
@@ -99,7 +106,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		scaleMode = false;
 		cellPaint = new Paint();
 		cellPaint.setAntiAlias(false);
-		setLandSize(ScreenUtils.getScreenRealWidth() / 2, ScreenUtils.getScreenRealHeight() / 4);
+		setLandSize(LAND_WIDTH, LAND_HEIGHT);
 		cacheBitmap = Bitmap.createBitmap(mLand.getWidth(), mLand.getHeight(), Bitmap.Config.ARGB_8888);
 		cacheCanvas = new Canvas(cacheBitmap);
 		setCellStrokeSize(3);
@@ -262,6 +269,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
 				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
 					mLand.setCellAlive(x, y);
+					mLand.setCellColor(x, y, Settings.getInstance().getPaletteColor());
 				}
 			}
 		}
@@ -325,7 +333,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void setDrawScale(float drawScale) {
-		float newScale = MathUtils.clamp(drawScale, 1.0f, 10.0f);
+		float newScale = MathUtils.clamp(drawScale, DRAW_SCALE_MIN, DRAW_SCALE_MAX);
 		float offset = this.drawScale - newScale;
 		this.drawScale = newScale;
 		addLandTranslationX(offset * getLand().getWidth() * 0.5f);
@@ -380,13 +388,13 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void resetLandTranslationX() {
-		landTranslationX = (getViewWidth() - getLand().getWidth()) * 0.5f;
+		landTranslationX = (getHolderWidth() - getLand().getWidth()) * 0.5f;
 		addLandTranslationX((1.0f - drawScale) * getLand().getWidth() * 0.5f);
 
 	}
 
 	public void resetLandTranslationY() {
-		landTranslationY = (getViewHeight() - getLand().getHeight()) * 0.5f;
+		landTranslationY = (getHolderHeight() - getLand().getHeight()) * 0.5f;
 		addLandTranslationY((1.0f - drawScale) * getLand().getHeight() * 0.5f);
 	}
 
@@ -398,11 +406,11 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		landTranslationY += value;
 	}
 
-	public int getViewWidth() {
+	public int getHolderWidth() {
 		return VIEW_WIDTH;
 	}
 
-	public int getViewHeight() {
+	public int getHolderHeight() {
 		return VIEW_HEIGHT;
 	}
 

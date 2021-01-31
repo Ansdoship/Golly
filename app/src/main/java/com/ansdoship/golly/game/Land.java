@@ -1,8 +1,15 @@
 package com.ansdoship.golly.game;
 
+import androidx.annotation.Nullable;
+
 import com.ansdoship.golly.common.Settings;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class Land {
+
+	private Random random;
 
 	private final int width;
 	private final int height;
@@ -46,6 +53,7 @@ public class Land {
 	}
 
 	public synchronized void init (double aliveProbability) {
+		random = new Random();
 		aliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
@@ -58,16 +66,26 @@ public class Land {
 
 	public synchronized void iteration () {
 		dayCount ++;
-		Cell[][] stepCellMap = new Cell[width][height];
+		Cell[][] stepCellMap;
+		// Color iteration
+		stepCellMap = new Cell[width][height];
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
+				stepCellMap[x][y] = new Cell(getCellState(x, y), getStepCellColor(getCellColor(x, y), x, y));
+			}
+		}
+		cellMap = stepCellMap;
+		// Life iteration
+		stepCellMap = new Cell[width][height];
 		int stepAliveCellCount = 0;
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				stepCellMap[x][y] = new Cell(Cell.STATE_DEAD, Settings.getInstance().getPaletteColor());
+				stepCellMap[x][y] = new Cell(Cell.STATE_DEAD, getCellColor(x, y));
 			}
 		}
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
-				int n = getPosCellCount(x, y);
+				int n = getPosSameColorAliveCellCount(x, y);
 				if (isCellAlive(x, y)) {
 					if (n < 2 || n > 3) {
 						stepCellMap[x][y].die();
@@ -96,16 +114,73 @@ public class Land {
 		init(ALIVE_PROBABILITY_ALL_DEAD);
 	}
 
-	public int getPosCellCount(int posX, int posY) {
-		int count = 0;
+	private @Nullable int[] getPosAliveCellColors(int posX, int posY) {
+		int[] colors = new int[8];
+		byte count = 0;
 		for (int x = posX - 1; x <= posX + 1; x ++) {
 			for (int y = posY - 1; y <= posY + 1; y ++) {
 				if (x >= 0 && x < width && y >= 0 && y < height) {
-					if (x == posX && y == posY) {
-						count += 0;
+					if (!(x == posX && y == posY)) {
+						if (getCellState(x, y) == Cell.STATE_ALIVE) {
+							colors[count] = getCellColor(x, y);
+							count ++;
+						}
 					}
-					else {
-						count += getCellState(x, y);
+				}
+			}
+		}
+		if (count < 1) {
+			return null;
+		}
+		int[] result = new int[count];
+		System.arraycopy(colors, 0, result, 0, count);
+		return result;
+	}
+
+	private int getStepCellColor(int defaultCellColor, int posX, int posY) {
+		int[] colors = getPosAliveCellColors(posX, posY);
+		if (colors == null) {
+			return defaultCellColor;
+		}
+		else {
+			final Map<Integer, Integer> map = new HashMap<>();
+			for (int key : colors) {
+				if (map.containsKey(key)) {
+					map.put(key, map.get(key) + 1);
+				}
+				else {
+					map.put(key, 1);
+				}
+			}
+			int count = 0;
+			for (int key : colors) {
+				if (map.get(key) != null) {
+					if (count < map.get(key)) {
+						count = map.get(key);
+					}
+				}
+			}
+			for (int key : colors) {
+				if (map.get(key) != null) {
+					if (count > map.get(key)) {
+						map.remove(key);
+					}
+				}
+			}
+			return (int) map.keySet().toArray()[random.nextInt(map.size())];
+		}
+	}
+
+	private byte getPosSameColorAliveCellCount(int posX, int posY) {
+		byte count = 0;
+		int color = getCellColor(posX, posY);
+		for (int x = posX - 1; x <= posX + 1; x ++) {
+			for (int y = posY - 1; y <= posY + 1; y ++) {
+				if (x >= 0 && x < width && y >= 0 && y < height) {
+					if (!(x == posX && y == posY)) {
+						if (getCellColor(x, y) == color && getCellState(x, y) == Cell.STATE_ALIVE) {
+							count ++;
+						}
 					}
 				}
 			}

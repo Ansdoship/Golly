@@ -32,6 +32,8 @@ import com.ansdoship.golly.R;
 import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
+	
+	private float DEFAULT_DRAW_SCALE;
 
 	private FrameLayout flContainer;
 	private LandView landView;
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 					landView.addCellStroke(xInt, yInt);
 					break;
 				case R.id.btn_draw_scale:
-					landView.setDrawScale(1.0f);
+					landView.setDrawScale(DEFAULT_DRAW_SCALE);
 					landView.resetLandTranslationX();
 					landView.resetLandTranslationY();
 					break;
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         btnDrawScale = findViewById(R.id.btn_draw_scale);
         btnDrawScale.setOnClickListener(clickListener);
         barDrawScale = findViewById(R.id.bar_draw_scale);
-		barDrawScale.setMax(900);
+		barDrawScale.setMax(1900);
         barDrawScale.setOnSeekBarChangeListener(seekBarChangeListener);
         btnAliveProbability = findViewById(R.id.btn_alive_probability);
         btnAliveProbability.setOnClickListener(clickListener);
@@ -188,7 +190,10 @@ public class MainActivity extends AppCompatActivity {
 			updateDrawScaleBtn();
 			updateDrawScaleBar();
 		});
-        landView.setDrawScale(1.0f);
+        DEFAULT_DRAW_SCALE =
+				Math.min(landView.getHolderWidth(), landView.getHolderHeight()) * 1.0f /
+				Math.max(landView.LAND_WIDTH, landView.LAND_HEIGHT) * 1.0f;
+        landView.setDrawScale(DEFAULT_DRAW_SCALE);
 		isLandIteration = true;
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();

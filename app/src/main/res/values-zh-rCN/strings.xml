@@ -25,10 +25,15 @@
     <string name="info">关于</string>
     <string name="description">说明</string>
     <string name="copyright_info">版权所有 © 2021 答舟工作室。保留一切权利。</string>
-    <string name="description_content">在康威的生命游戏中，规定了如下生存定律: \n
-        1. 若当前细胞周围8格的存活细胞数量等于3，迭代后该细胞状态变为存活。 \n
-        2. 若当前细胞为存活状态，且周围8格的存活细胞数量小于2或大于3，迭代后该细胞状态变为死亡。\n
-        3. 若当前细胞为存活状态，且周围8格的存活细胞数量等于2或等于3，迭代后该细胞状态不变。</string>
-    <string name="open_source_info">该应用程序是开源的。你可以在 GitHub 找到源码。</string>
+    <string name="description_content">
+        在《誓言细胞》中，规定了如下生存定律: \n
+        1. 细胞迭代分为两部分，颜色迭代优先级高于生命迭代。\n
+        2. 颜色迭代: \n
+        (1). 当前细胞迭代后的颜色从周围8格存活细胞出现最多的颜色中随机选取；若周围8格存活细胞数量为0，迭代后该细胞颜色不变。\n
+        3. 生命迭代: \n
+        (1). 若当前细胞周围8格相同颜色的存活细胞数量等于3，迭代后该细胞状态变为存活。 \n
+        (2). 若当前细胞为存活状态，且周围8格相同颜色的存活细胞数量小于2或大于3，迭代后该细胞状态变为死亡。\n
+        (3). 若当前细胞为存活状态，且周围8格相同颜色的存活细胞数量等于2或等于3，迭代后该细胞状态不变。</string>
+    <string name="open_source_info">《誓言细胞》是开源的。你可以在 GitHub 找到源码。</string>
     <string name="palette">调色盘</string>
 </resources>

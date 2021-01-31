@@ -39,6 +39,9 @@ class Cell {
 	}
 
 	public void setColor(int color) {
+		if (color == 0x00000000) {
+			throw new IllegalArgumentException("Cell color cannot be 0x00000000.");
+		}
 		this.color = color;
 	}
 
