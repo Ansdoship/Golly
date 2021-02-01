@@ -30,14 +30,14 @@
         In Golly, the following laws of survival are laid down: \n
         1. Cell iterations are divided into two parts, with color iterations priority over life iterations.\n
         2. Color iterations: \n
-        (1). The color after the current cell iteration is randomly selected from the colors that appear most in the surrounding 8 cells,
-        and if the number of alive cells in the surrounding 8 cells is 0, the color of the cell remains unchanged after the iteration.
+        (1). The color after the current cell iteration is randomly selected from the colors that appear most of the surrounding 8 cells,
+        and if the number of living cells of the surrounding 8 cells is 0, the color of the cell remains unchanged after the iteration.
         3. Life iterations: \n
-        (1). If the number of living same-color cells around the current cell is equal to 3,
+        (1). If the number of living cells around the current cell of the same color is equal to 3,
         the cell state becomes alive after iteration. \n
-        (2). If the current cell is alive and the number of same-color living cells around the cell is less than 2 or greater than 3,
+        (2). If the current cell is alive and the number of living cells around the cell of the same color is less than 2 or greater than 3,
         the cell state becomes dead after iteration. \n
-        (3). If the current cell is alive and the number of same-color living cells around the cell is equal to 2 or equal to 3,
+        (3). If the current cell is alive and the number of living cells around the cell of the same color is equal to 2 or equal to 3,
         the cell state remains unchanged after iteration.</string>
     <string name="source_code_url" translatable="false">https://github.com/Ansdoship/Golly</string>
     <string name="source_code_url_html" translatable="false"><u>https://github.com/Ansdoship/Golly</u></string>

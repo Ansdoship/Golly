@@ -269,8 +269,18 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
 			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
 				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
-					mLand.setCellAlive(x, y);
 					mLand.setCellColor(x, y, Settings.getInstance().getPaletteColor());
+					mLand.setCellAlive(x, y);
+				}
+			}
+		}
+	}
+
+	public synchronized void clearCellStroke(int posX, int posY) {
+		for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
+			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
+				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
+					mLand.setCellDie(x, y);
 				}
 			}
 		}
