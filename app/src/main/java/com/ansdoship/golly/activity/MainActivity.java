@@ -2,10 +2,7 @@ package com.ansdoship.golly.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.view.View;
 import android.widget.Button;
@@ -17,26 +14,24 @@ import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
 import androidx.core.math.MathUtils;
 
 import com.ansdoship.golly.common.Settings;
 import com.ansdoship.golly.game.Land;
 import com.ansdoship.golly.util.ActivityUtils;
-import com.ansdoship.golly.util.DialogUtils;
 import com.ansdoship.golly.util.SoftKeyBoardStateChangeObserver;
 import com.ansdoship.golly.view.LandView;
 import com.ansdoship.golly.R;
 
 import java.text.DecimalFormat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 	
 	private float DEFAULT_DRAW_SCALE;
 
 	private FrameLayout flContainer;
-	private LandView landView;
+	private LandView mGameView;
 	private Button btnStop;
 	private Button btnStart;
 	private Button btnClear;
@@ -58,55 +53,49 @@ public class MainActivity extends AppCompatActivity {
 	private boolean isLandIteration;
 	private double aliveProbability;
 
-	private final View.OnClickListener clickListener = new View.OnClickListener() {
-		@SuppressLint("NonConstantResourceId")
-		@Override
-		public void onClick(@NonNull View v) {
-			switch(v.getId()){
-				case R.id.btn_stop:
-					landView.stopGame();
-					break;
-				case R.id.btn_start:
-					landView.startGame();
-					break;
-				case R.id.btn_clear:
-					landView.clear();
-					break;
-				case R.id.btn_reset:
-					landView.reset(aliveProbability);
-					break;
-				case R.id.btn_add_cell:
-					String xStr = etCoordinateX.getText().toString();
-					int xInt = xStr.equals("") ? 0 : Integer.parseInt(xStr);
-					String yStr = etCoordinateY.getText().toString();
-					int yInt = yStr.equals("") ? 0 : Integer.parseInt(yStr);
-					landView.addCellStroke(xInt, yInt);
-					break;
-				case R.id.btn_draw_scale:
-					landView.setDrawScale(DEFAULT_DRAW_SCALE);
-					landView.resetLandTranslationX();
-					landView.resetLandTranslationY();
-					break;
-				case R.id.btn_alive_probability:
-					aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
-					updateAliveProbabilityBtn();
-					updateAliveProbabilityBar();
-					break;
-				case R.id.tbtn_scale_mode:
-					landView.setScaleMode(tBtnScaleMode.isChecked());
-					break;
-				case R.id.btn_recenter_map:
-					landView.resetLandTranslationX();
-					landView.resetLandTranslationY();
-					break;
-				case R.id.tv_source_code_url:
-					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.source_code_url))));
-					break;
-				case R.id.btn_palette:
-					Settings.getInstance().setPaletteColor(Settings.PALETTE_COLOR_DEFAULT);
-					rgPalette.check(R.id.rbtn_palette_black);
-					break;
-			}
+	@SuppressLint("NonConstantResourceId")
+	private final View.OnClickListener mOnClickListener = v -> {
+		switch(v.getId()){
+			case R.id.btn_stop:
+				mGameView.stopGame();
+				break;
+			case R.id.btn_start:
+				mGameView.startGame();
+				break;
+			case R.id.btn_clear:
+				mGameView.clear();
+				break;
+			case R.id.btn_reset:
+				mGameView.reset(aliveProbability);
+				break;
+			case R.id.btn_add_cell:
+				String xStr = etCoordinateX.getText().toString();
+				int xInt = xStr.equals("") ? 0 : Integer.parseInt(xStr);
+				String yStr = etCoordinateY.getText().toString();
+				int yInt = yStr.equals("") ? 0 : Integer.parseInt(yStr);
+				mGameView.addCellStroke(xInt, yInt);
+				break;
+			case R.id.btn_draw_scale:
+				mGameView.setDrawScale(DEFAULT_DRAW_SCALE);
+				mGameView.resetLandTranslationX();
+				mGameView.resetLandTranslationY();
+				break;
+			case R.id.btn_alive_probability:
+				aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
+				updateAliveProbabilityBtn();
+				updateAliveProbabilityBar();
+				break;
+			case R.id.tbtn_scale_mode:
+				mGameView.setScaleMode(tBtnScaleMode.isChecked());
+				break;
+			case R.id.btn_recenter_map:
+				mGameView.resetLandTranslationX();
+				mGameView.resetLandTranslationY();
+				break;
+			case R.id.btn_palette:
+				Settings.getInstance().setPaletteColor(Settings.PALETTE_COLOR_DEFAULT);
+				rgPalette.check(R.id.rbtn_palette_black);
+				break;
 		}
 	};
 
@@ -121,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 					break;
 				case R.id.bar_draw_scale:
 					if (fromUser) {
-						landView.setDrawScale((progress + 100) * 0.01f);
+						mGameView.setDrawScale((progress + 100) * 0.01f);
 					}
 					break;
 			}
@@ -135,79 +124,78 @@ public class MainActivity extends AppCompatActivity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		ActivityUtils.hideStatusBar(this);
 		new SoftKeyBoardStateChangeObserver(this).setOnSoftKeyBoardStateChangeListener(
 				isShow -> {
 					if (!isShow) {
 						clearFocus();
+						ActivityUtils.setImmersiveMode(this);
 					}
 				}
 		);
+		Intent intent = getIntent();
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setTitle(intent.getStringExtra("title"));
+		}
         setContentView(R.layout.activity_main);
-		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
         flContainer = findViewById(R.id.fl_container);
         btnStop = findViewById(R.id.btn_stop);
-        btnStop.setOnClickListener(clickListener);
+        btnStop.setOnClickListener(mOnClickListener);
         btnStart = findViewById(R.id.btn_start);
-        btnStart.setOnClickListener(clickListener);
+        btnStart.setOnClickListener(mOnClickListener);
         btnClear = findViewById(R.id.btn_clear);
-        btnClear.setOnClickListener(clickListener);
+        btnClear.setOnClickListener(mOnClickListener);
         btnReset = findViewById(R.id.btn_reset);
-        btnReset.setOnClickListener(clickListener);
+        btnReset.setOnClickListener(mOnClickListener);
         tvGameInfo = findViewById(R.id.tv_game_info);
         etCoordinateX = findViewById(R.id.et_coordinate_x);
         etCoordinateY = findViewById(R.id.et_coordinate_y);
         btnAddCell = findViewById(R.id.btn_add_cell);
-        btnAddCell.setOnClickListener(clickListener);
+        btnAddCell.setOnClickListener(mOnClickListener);
         btnDrawScale = findViewById(R.id.btn_draw_scale);
-        btnDrawScale.setOnClickListener(clickListener);
+        btnDrawScale.setOnClickListener(mOnClickListener);
         barDrawScale = findViewById(R.id.bar_draw_scale);
 		barDrawScale.setMax(1900);
         barDrawScale.setOnSeekBarChangeListener(seekBarChangeListener);
         btnAliveProbability = findViewById(R.id.btn_alive_probability);
-        btnAliveProbability.setOnClickListener(clickListener);
+        btnAliveProbability.setOnClickListener(mOnClickListener);
         barAliveProbability = findViewById(R.id.bar_alive_probability);
 		barAliveProbability.setOnSeekBarChangeListener(seekBarChangeListener);
         aliveProbability = Land.ALIVE_PROBABILITY_DEFAULT;
         tBtnScaleMode = findViewById(R.id.tbtn_scale_mode);
-        tBtnScaleMode.setOnClickListener(clickListener);
+        tBtnScaleMode.setOnClickListener(mOnClickListener);
         btnRecenterMap = findViewById(R.id.btn_recenter_map);
-        btnRecenterMap.setOnClickListener(clickListener);
+        btnRecenterMap.setOnClickListener(mOnClickListener);
         btnPalette = findViewById(R.id.btn_palette);
-        btnPalette.setOnClickListener(clickListener);
+        btnPalette.setOnClickListener(mOnClickListener);
 
         rgPalette = findViewById(R.id.rg_palette);
         rgPalette.check(R.id.rbtn_palette_black);
         rgPalette.setOnCheckedChangeListener((group, checkedId) ->
 				Settings.getInstance().setPaletteColor(((RadioButton)findViewById(checkedId)).getCurrentTextColor()));
 
-        landView = new LandView(this);
-        flContainer.addView(landView);
+		mGameView = new LandView(this, LandView.LAND_SIZE_LARGE, LandView.LAND_SIZE_LARGE);
+        flContainer.addView(mGameView);
         gameInfoBuilder = new StringBuilder();
-        landView.setOnDrawLandListener(this::updateGameInfo);
-        landView.setOnDrawScaleChangeListener(newScale -> {
+        mGameView.setOnDrawLandListener(this::updateGameInfo);
+        mGameView.setOnDrawScaleChangeListener(newScale -> {
 			updateDrawScaleBtn();
 			updateDrawScaleBar();
 		});
-        DEFAULT_DRAW_SCALE =
-				Math.min(landView.getHolderWidth(), landView.getHolderHeight()) * 1.0f /
-				Math.max(landView.LAND_WIDTH, landView.LAND_HEIGHT) * 1.0f;
-        landView.setDrawScale(DEFAULT_DRAW_SCALE);
+        DEFAULT_DRAW_SCALE = (float) (
+				Math.min(mGameView.getHolderWidth(), mGameView.getHolderHeight()) * 1.0 /
+				Math.max(mGameView.getLand().getWidth(), mGameView.getLand().getHeight()) * 1.0);
+        mGameView.setDrawScale(DEFAULT_DRAW_SCALE);
 		isLandIteration = true;
 		updateAliveProbabilityBtn();
 		updateAliveProbabilityBar();
     }
 
 	@Override
-	public void finish() {
-		super.finish();
-		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-	}
-
-	@Override
 	protected void onDestroy() {
-		landView.release();
+		mGameView.release();
 		super.onDestroy();
 	}
 
@@ -222,71 +210,23 @@ public class MainActivity extends AppCompatActivity {
 
 	@SuppressLint("SetTextI18n")
 	private void updateDrawScaleBtn() {
-		btnDrawScale.setText(new DecimalFormat("0").format(landView.getDrawScale() * 100) + "%");
+		btnDrawScale.setText(new DecimalFormat("0").format(mGameView.getDrawScale() * 100) + "%");
 	}
 
 	private void updateDrawScaleBar() {
-		barDrawScale.setProgress((int) ((landView.getDrawScale() - 1.0f) * 100));
+		barDrawScale.setProgress((int) ((mGameView.getDrawScale() - 1.0f) * 100));
 	}
 
 	@Override
 	protected void onPause() {
-    	isLandIteration = landView.isLandIteration();
+    	isLandIteration = mGameView.isLandIteration();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		landView.setLandIteration(isLandIteration);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu_main, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@SuppressLint("NonConstantResourceId")
-	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.mi_description:
-				AlertDialog descriptionDialog = new AlertDialog.Builder(this).setMessage(R.string.description_content).create();
-				descriptionDialog.show();
-				TextView tvMessage = DialogUtils.getMessageTextView(descriptionDialog);
-				if (tvMessage != null) {
-					tvMessage.setTextSize(18);
-				}
-				return true;
-			case R.id.mi_donate:
-				//new AlertDialog.Builder(this).setView().create().show();
-				return true;
-			case R.id.mi_info:
-				AlertDialog infoDialog = new AlertDialog.Builder(this).setView(R.layout.dialog_info).create();
-				infoDialog.show();
-				infoDialog.findViewById(R.id.tv_source_code_url).setOnClickListener(clickListener);
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus) {
-			if (!(getCurrentFocus() instanceof EditText)) {
-				clearFocus();
-			}
-		}
-	}
-
-	private void clearFocus() {
-		View focus = getCurrentFocus();
-		if (focus != null) {
-			focus.clearFocus();
-		}
-		ActivityUtils.hideNavigationBar(this);
+		mGameView.setLandIteration(isLandIteration);
 	}
 
 	private void updateGameInfo() {
@@ -295,31 +235,31 @@ public class MainActivity extends AppCompatActivity {
 			gameInfoBuilder
 					.append(getResources().getString(R.string.map_width))
 					.append(": ")
-					.append(landView.getLand().getWidth())
+					.append(mGameView.getLand().getWidth())
 					.append("\n")
 					.append(getResources().getString(R.string.map_height))
 					.append(": ")
-					.append(landView.getLand().getHeight())
+					.append(mGameView.getLand().getHeight())
 					.append("\n")
 					.append(getResources().getString(R.string.day_count))
 					.append(": ")
-					.append(landView.getLand().getDayCount())
+					.append(mGameView.getLand().getDayCount())
 					.append("\n")
 					.append(getResources().getString(R.string.draw_fps))
 					.append(": ")
-					.append(landView.getDrawFps())
+					.append(mGameView.getDrawFps())
 					.append("\n")
 					.append(getResources().getString(R.string.iteration_map_fps))
 					.append(": ")
-					.append(landView.getIterationLandFps())
+					.append(mGameView.getIterationLandFps())
 					.append("\n")
 					.append(getResources().getString(R.string.free_space))
 					.append(": ")
-					.append(landView.getLand().getDeadCellCount())
+					.append(mGameView.getLand().getDeadCellCount())
 					.append("\n")
 					.append(getResources().getString(R.string.alive_cell_count))
 					.append(": ")
-					.append(landView.getLand().getAliveCellCount());
+					.append(mGameView.getLand().getAliveCellCount());
 			tvGameInfo.setText(gameInfoBuilder.toString());
 		});
 	}

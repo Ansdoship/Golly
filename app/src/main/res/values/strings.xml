@@ -26,7 +26,7 @@
     <string name="info">Info</string>
     <string name="description">Description</string>
     <string name="copyright_info">Copyright © 2021 AnsdoShip Studio. All rights reserved.</string>
-    <string name="description_content">
+    <string name="help_content">
         In Golly, the following laws of survival are laid down: \n
         1. Cell iterations are divided into two parts, with color iterations priority over life iterations.\n
         2. Color iterations: \n
@@ -40,8 +40,18 @@
         (3). If the current cell is alive and the number of living cells around the cell of the same color is equal to 2 or equal to 3,
         the cell state remains unchanged after iteration.</string>
     <string name="source_code_url" translatable="false">https://github.com/Ansdoship/Golly</string>
-    <string name="source_code_url_html" translatable="false"><u>https://github.com/Ansdoship/Golly</u></string>
+    <string name="source_code_url_underlined" translatable="false"><u>https://github.com/Ansdoship/Golly</u></string>
     <string name="open_source_info">Golly is open source. You can find the source code in GitHub.</string>
     <string name="palette_placeholder_string" translatable="false">■</string>
     <string name="palette">Palette</string>
+    <string name="version_name" translatable="false">0.9.7-indev</string>
+    <string name="story_mode">Story Mode</string>
+    <string name="sandbox_mode">Sandbox Mode</string>
+    <string name="survive_mode">Survive Mode</string>
+    <string name="versus_mode">Versus Mode</string>
+    <string name="exit_game">Exit Game</string>
+    <string name="help">Help</string>
+    <string name="settings">Settings</string>
+    <string name="exit">Exit</string>
+    <string name="coming_soon">Coming Soon !</string>
 </resources>

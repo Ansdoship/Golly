@@ -22,13 +22,19 @@ import com.ansdoship.golly.util.DensityUtils;
 import com.ansdoship.golly.util.DrawUtils;
 import com.ansdoship.golly.util.ScreenUtils;
 
+import java.util.concurrent.locks.ReentrantLock;
+
+@SuppressLint("ViewConstructor")
 public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
-	public final int LAND_WIDTH = 256;
-	public final int LAND_HEIGHT = 256;
+	public static final int LAND_SIZE_SMALL = 64;
+	public static final int LAND_SIZE_NORMAL = 128;
+	public static final int LAND_SIZE_LARGE = 256;
 
-	public final float DRAW_SCALE_MIN = 1.0f;
-	public final float DRAW_SCALE_MAX = 20.0f;
+	public static final float DRAW_SCALE_MIN = 1.0f;
+	public static final float DRAW_SCALE_MAX = 20.0f;
+
+	private final ReentrantLock strokeCellLock;
 
 	private int drawFps;
 	private long drawTime;
@@ -84,16 +90,17 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		return onDrawScaleChangeListener;
 	}
 
-	public LandView(Context context) {
-		this(context, null);
+	public LandView(Context context, int landWidth, int landHeight) {
+		this(context, null, landWidth, landHeight);
 	}
 
-	public LandView(Context context, AttributeSet attrs) {
-		this(context, attrs, 0);
+	public LandView(Context context, AttributeSet attrs, int landWidth, int landHeight) {
+		this(context, attrs, 0, landWidth, landHeight);
 	}
 
-	public LandView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public LandView(Context context, AttributeSet attrs, int defStyleAttr, int landWidth, int landHeight) {
 		super(context, attrs, defStyleAttr);
+		strokeCellLock = new ReentrantLock(true);
 		mHolder = getHolder();
 		mHolder.addCallback(this);
 		mHolder.setFormat(PixelFormat.TRANSLUCENT);
@@ -106,7 +113,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		scaleMode = false;
 		cellPaint = new Paint();
 		cellPaint.setAntiAlias(false);
-		setLandSize(LAND_WIDTH, LAND_HEIGHT);
+		setLandSize(landWidth, landHeight);
 		cacheBitmap = Bitmap.createBitmap(mLand.getWidth(), mLand.getHeight(), Bitmap.Config.ARGB_8888);
 		cacheCanvas = new Canvas(cacheBitmap);
 		setCellStrokeSize(3);
@@ -169,25 +176,23 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		if (mLand == null) {
 			return;
 		}
-        Canvas mCanvas = mHolder.lockCanvas();
+		Canvas mCanvas = mHolder.lockCanvas();
 		Matrix matrix = new Matrix();
 		matrix.setTranslate(getLandTranslationX() / drawScale, getLandTranslationY() / drawScale);
 		matrix.postScale(drawScale, drawScale);
-        if (mCanvas != null) {
-        	synchronized (mHolder) {
-				mCanvas.drawPaint(DrawUtils.getEraser());
-				cacheCanvas.drawPaint(DrawUtils.getEraser());
-				cacheCanvas.drawColor(landBackgroundColor);
-				for(int x = 0; x < mLand.getWidth(); x ++) {
-					for(int y = 0; y < mLand.getHeight(); y ++) {
-						if (mLand.isCellAlive(x, y)) {
-							cellPaint.setColor(mLand.getCellColor(x, y));
-							cacheCanvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, cellPaint);
-						}
+		if (mCanvas != null) {
+			mCanvas.drawPaint(DrawUtils.getEraser());
+			cacheCanvas.drawPaint(DrawUtils.getEraser());
+			cacheCanvas.drawColor(landBackgroundColor);
+			for(int x = 0; x < mLand.getWidth(); x ++) {
+				for(int y = 0; y < mLand.getHeight(); y ++) {
+					if (mLand.isCellAlive(x, y)) {
+						cellPaint.setColor(mLand.getCellColor(x, y));
+						cacheCanvas.drawPoint((x + 0.5f) * cellSize,(y + 0.5f) * cellSize, cellPaint);
 					}
 				}
-				mCanvas.drawBitmap(cacheBitmap, matrix, DrawUtils.getBitmapPaint());
 			}
+			mCanvas.drawBitmap(cacheBitmap, matrix, DrawUtils.getBitmapPaint());
 			mHolder.unlockCanvasAndPost(mCanvas);
 			if (onDrawLandListener != null) {
 				onDrawLandListener.onDrawLand();
@@ -264,24 +269,36 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		return 0;
 	}
 
-	public synchronized void addCellStroke(int posX, int posY) {
-		for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
-			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
-				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
-					mLand.setCellColor(x, y, Settings.getInstance().getPaletteColor());
-					mLand.setCellAlive(x, y);
+	public void addCellStroke(int posX, int posY) {
+		strokeCellLock.lock();
+		try {
+			for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
+				for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
+					if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
+						mLand.setCellColor(x, y, Settings.getInstance().getPaletteColor());
+						mLand.setCellAlive(x, y);
+					}
 				}
 			}
 		}
+		finally {
+			strokeCellLock.unlock();
+		}
 	}
 
-	public synchronized void clearCellStroke(int posX, int posY) {
-		for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
-			for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
-				if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
-					mLand.setCellDie(x, y);
+	public void clearCellStroke(int posX, int posY) {
+		strokeCellLock.lock();
+		try {
+			for (int x = posX - getCellStrokeSize(); x <= posX + getCellStrokeSize(); x ++) {
+				for (int y = posY - getCellStrokeSize(); y <= posY + getCellStrokeSize(); y ++) {
+					if (x >= 0 && x < mLand.getWidth() && y >= 0 && y < mLand.getHeight()) {
+						mLand.setCellDie(x, y);
+					}
 				}
 			}
+		}
+		finally {
+			strokeCellLock.unlock();
 		}
 	}
 	

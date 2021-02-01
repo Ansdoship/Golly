@@ -6,8 +6,11 @@ import com.ansdoship.golly.common.Settings;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Land {
+
+	private final ReentrantLock modifyLandLock;
 
 	private Random random;
 
@@ -41,6 +44,7 @@ public class Land {
 		if (height < 0) {
 			throw new IllegalArgumentException("Height must be > 0");
 		}
+		modifyLandLock = new ReentrantLock(true);
 		this.width = width;
 		this.height = height;
 		cellMap = new Cell[width][height];
@@ -52,62 +56,74 @@ public class Land {
 		init(ALIVE_PROBABILITY_DEFAULT);
 	}
 
-	public synchronized void init (double aliveProbability) {
-		random = new Random();
-		aliveCellCount = 0;
-		for (int x = 0; x < width; x ++) {
-			for (int y = 0; y < height; y ++) {
-				Cell cell = new Cell(deadOrAlive(aliveProbability), Settings.getInstance().getPaletteColor());
-				aliveCellCount += cell.getState();
-				cellMap[x][y] = cell;
+	public void init (double aliveProbability) {
+		modifyLandLock.lock();
+		try {
+			random = new Random();
+			aliveCellCount = 0;
+			for (int x = 0; x < width; x ++) {
+				for (int y = 0; y < height; y ++) {
+					Cell cell = new Cell(deadOrAlive(aliveProbability), Settings.getInstance().getPaletteColor());
+					aliveCellCount += cell.getState();
+					cellMap[x][y] = cell;
+				}
 			}
+		}
+		finally {
+			modifyLandLock.unlock();
 		}
 	}
 
-	public synchronized void iteration () {
-		dayCount ++;
-		Cell[][] stepCellMap;
-		// Color iteration
-		stepCellMap = new Cell[width][height];
-		for (int x = 0; x < width; x ++) {
-			for (int y = 0; y < height; y ++) {
-				stepCellMap[x][y] = new Cell(getCellState(x, y), getStepCellColor(getCellColor(x, y), x, y));
-			}
-		}
-		cellMap = stepCellMap;
-		// Life iteration
-		stepCellMap = new Cell[width][height];
-		int stepAliveCellCount = 0;
-		for (int x = 0; x < width; x ++) {
-			for (int y = 0; y < height; y ++) {
-				stepCellMap[x][y] = new Cell(Cell.STATE_DEAD, getCellColor(x, y));
-			}
-		}
-		for (int x = 0; x < width; x ++) {
-			for (int y = 0; y < height; y ++) {
-				int n = getPosSameColorAliveCellCount(x, y);
-				if (isCellAlive(x, y)) {
-					if (n < 2 || n > 3) {
-						stepCellMap[x][y].die();
-						stepAliveCellCount --;
-					}
-					else {
-						stepCellMap[x][y].alive();
-						stepAliveCellCount ++;
-					}
+	public void iteration () {
+		modifyLandLock.lock();
+		try {
+			dayCount ++;
+			Cell[][] stepCellMap;
+			// Color iteration
+			stepCellMap = new Cell[width][height];
+			for (int x = 0; x < width; x ++) {
+				for (int y = 0; y < height; y ++) {
+					stepCellMap[x][y] = new Cell(getCellState(x, y), getStepCellColor(getCellColor(x, y), x, y));
 				}
-				else {
-					if (stepCellMap[x][y].getState() == Cell.STATE_DEAD) {
-						if (n == 3) {
+			}
+			cellMap = stepCellMap;
+			// Life iteration
+			stepCellMap = new Cell[width][height];
+			int stepAliveCellCount = 0;
+			for (int x = 0; x < width; x ++) {
+				for (int y = 0; y < height; y ++) {
+					stepCellMap[x][y] = new Cell(Cell.STATE_DEAD, getCellColor(x, y));
+				}
+			}
+			for (int x = 0; x < width; x ++) {
+				for (int y = 0; y < height; y ++) {
+					int n = getPosSameColorAliveCellCount(x, y);
+					if (isCellAlive(x, y)) {
+						if (n < 2 || n > 3) {
+							stepCellMap[x][y].die();
+							stepAliveCellCount --;
+						}
+						else {
 							stepCellMap[x][y].alive();
 							stepAliveCellCount ++;
 						}
 					}
+					else {
+						if (stepCellMap[x][y].getState() == Cell.STATE_DEAD) {
+							if (n == 3) {
+								stepCellMap[x][y].alive();
+								stepAliveCellCount ++;
+							}
+						}
+					}
 				}
 			}
+			cellMap = stepCellMap;
+			aliveCellCount = stepAliveCellCount;
 		}
-		cellMap = stepCellMap;
-		aliveCellCount = stepAliveCellCount;
+		finally {
+			modifyLandLock.unlock();
+		}
 	}
 
 	public void clear () {
@@ -146,7 +162,13 @@ public class Land {
 			final Map<Integer, Integer> map = new HashMap<>();
 			for (int key : colors) {
 				if (map.containsKey(key)) {
-					map.put(key, map.get(key) + 1);
+					Integer count = map.get(key);
+					if (count == null) {
+						map.put(key, 1);
+					}
+					else {
+						map.put(key, count + 1);
+					}
 				}
 				else {
 					map.put(key, 1);
@@ -154,15 +176,17 @@ public class Land {
 			}
 			int count = 0;
 			for (int key : colors) {
-				if (map.get(key) != null) {
-					if (count < map.get(key)) {
-						count = map.get(key);
+				Integer integer = map.get(key);
+				if (integer != null) {
+					if (count < integer) {
+						count = integer;
 					}
 				}
 			}
 			for (int key : colors) {
-				if (map.get(key) != null) {
-					if (count > map.get(key)) {
+				Integer integer = map.get(key);
+				if (integer != null) {
+					if (count > integer) {
 						map.remove(key);
 					}
 				}
