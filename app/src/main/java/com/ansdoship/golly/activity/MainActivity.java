@@ -135,7 +135,6 @@ public class MainActivity extends BaseActivity {
 		Intent intent = getIntent();
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setTitle(intent.getStringExtra("title"));
 		}
         setContentView(R.layout.activity_main);

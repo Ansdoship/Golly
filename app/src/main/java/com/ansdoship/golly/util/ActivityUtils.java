@@ -25,26 +25,26 @@ public class ActivityUtils {
 
     public static int getStatusBarHeight() {
         return ApplicationUtils.getResources().getDimensionPixelSize(
-                ApplicationUtils.getResources().getIdentifier("status_bar_height", "dimen","android"));
+                ApplicationUtils.getResources().getIdentifier("status_bar_height", "dimen", "android"));
     }
 
     public static int getNavigationBarHeight() {
         return ApplicationUtils.getResources().getDimensionPixelSize(
-                ApplicationUtils.getResources().getIdentifier("navigation_bar_height", "dimen","android"));
+                ApplicationUtils.getResources().getIdentifier("navigation_bar_height", "dimen", "android"));
     }
 
     /**
      * Hide activity's action bar.
+     *
      * @param activity the activity which will be hide action bar
      */
     public static void hideActionBar(@NonNull Activity activity) {
         if (activity instanceof AppCompatActivity) {
-           ActionBar actionBar = ((AppCompatActivity) activity).getSupportActionBar();
-           if (actionBar != null) {
-               actionBar.hide();
-           }
-        }
-        else {
+            ActionBar actionBar = ((AppCompatActivity) activity).getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.hide();
+            }
+        } else {
             android.app.ActionBar actionBar = activity.getActionBar();
             if (actionBar != null) {
                 actionBar.hide();
@@ -67,11 +67,10 @@ public class ActivityUtils {
         int uiOptions;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             uiOptions = View.GONE;
-        }
-        else {
+        } else {
             uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         decorView.setSystemUiVisibility(uiOptions);

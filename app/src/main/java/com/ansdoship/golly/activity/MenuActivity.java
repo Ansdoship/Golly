@@ -35,7 +35,6 @@ public class MenuActivity extends BaseActivity {
                 break;
             case R.id.btn_exit_game:
                 finish();
-                System.exit(0);
                 break;
         }
     };
@@ -56,6 +55,12 @@ public class MenuActivity extends BaseActivity {
         btnExitGame = findViewById(R.id.btn_exit_game);
         btnExitGame.setOnClickListener(mOnClickListener);
 
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        System.exit(0);
     }
 
 }
