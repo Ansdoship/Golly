@@ -44,7 +44,7 @@
     <string name="open_source_info">Golly is open source. You can find the source code in GitHub.</string>
     <string name="palette_placeholder_string" translatable="false">■</string>
     <string name="palette">Palette</string>
-    <string name="version_name" translatable="false">0.9.7-indev</string>
+    <string name="version_name" translatable="false">0.9.8-indev</string>
     <string name="story_mode">Story Mode</string>
     <string name="sandbox_mode">Sandbox Mode</string>
     <string name="survive_mode">Survive Mode</string>
