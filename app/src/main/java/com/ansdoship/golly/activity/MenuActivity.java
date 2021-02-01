@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.ansdoship.golly.R;
+import com.ansdoship.golly.view.LandView;
 
 public class MenuActivity extends BaseActivity {
 
@@ -23,9 +26,32 @@ public class MenuActivity extends BaseActivity {
                 createComingSoonDialog();
                 break;
             case R.id.btn_sandbox_mode:
-                Intent intent = new Intent(MenuActivity.this, MainActivity.class);
-                intent.putExtra("title", getString(R.string.sandbox_mode));
-                startActivity(intent);
+                String[] items = {
+                        getString(R.string.small_land),
+                        getString(R.string.normal_land),
+                        getString(R.string.large_land)
+                };
+                new AlertDialog.Builder(this, R.style.Theme_Golly_Dialog)
+                        .setItems(items,
+                        (dialog, which) -> {
+                            int landSize;
+                            switch (which) {
+                                case 0:
+                                    landSize = LandView.LAND_SIZE_SMALL;
+                                    break;
+                                case 1:
+                                    landSize = LandView.LAND_SIZE_NORMAL;
+                                    break;
+                                case 2:
+                                default:
+                                    landSize = LandView.LAND_SIZE_LARGE;
+                                    break;
+                            }
+                            Intent intent = new Intent(MenuActivity.this, MainActivity.class);
+                            intent.putExtra("title", getString(R.string.sandbox_mode));
+                            intent.putExtra("land_size", landSize);
+                            startActivity(intent);
+                        }).create().show();
                 break;
             case R.id.btn_survive_mode:
                 createComingSoonDialog();

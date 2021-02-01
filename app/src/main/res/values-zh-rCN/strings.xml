@@ -46,4 +46,7 @@
     <string name="settings">设置</string>
     <string name="coming_soon">仍在制作中 !</string>
     <string name="main_menu">主菜单</string>
+    <string name="small_land">小型地图 (64 * 64)</string>
+    <string name="normal_land">正常地图 (128 * 128)</string>
+    <string name="large_land">扩展地图 (256 * 256)</string>
 </resources>

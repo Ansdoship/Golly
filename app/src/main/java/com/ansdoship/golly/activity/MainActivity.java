@@ -175,7 +175,8 @@ public class MainActivity extends BaseActivity {
         rgPalette.setOnCheckedChangeListener((group, checkedId) ->
 				Settings.getInstance().setPaletteColor(((RadioButton)findViewById(checkedId)).getCurrentTextColor()));
 
-		mGameView = new LandView(this, LandView.LAND_SIZE_LARGE, LandView.LAND_SIZE_LARGE);
+        int landSize = intent.getIntExtra("land_size", LandView.LAND_SIZE_LARGE);
+		mGameView = new LandView(this, landSize, landSize);
         flContainer.addView(mGameView);
         gameInfoBuilder = new StringBuilder();
         mGameView.setOnDrawLandListener(this::updateGameInfo);

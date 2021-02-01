@@ -7,5 +7,12 @@
         <item name="fontFamily">@font/zcool</item>
         <item name="android:windowBackground">@color/white</item>
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:itemTextAppearance">@style/TextAppearance.Golly.Widget.ActionBar.Menu</item>
+    </style>
+    <style name="Theme.Golly.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="TextAppearance.Golly.Widget.ActionBar.Menu" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
+        <item name="android:textSize">18sp</item>
     </style>
 </resources>

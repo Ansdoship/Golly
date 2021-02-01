@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
 
 public class DialogUtils {
 
-    public static @Nullable TextView getMessageTextView(@NonNull AlertDialog dialog) {
+    public @Nullable static TextView getMessageView(@NonNull AlertDialog dialog) {
         try {
             Field mAlert = AlertDialog.class.getDeclaredField("mAlert");
             mAlert.setAccessible(true);

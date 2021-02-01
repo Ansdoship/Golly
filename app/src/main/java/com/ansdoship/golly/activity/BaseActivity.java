@@ -71,11 +71,12 @@ public class BaseActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.mi_help:
-                AlertDialog helpDialog = new AlertDialog.Builder(this).setMessage(R.string.help_content).create();
+                AlertDialog helpDialog = new AlertDialog.Builder(this)
+                        .setMessage(R.string.help_content).create();
                 helpDialog.show();
-                TextView tvMessage = DialogUtils.getMessageTextView(helpDialog);
-                if (tvMessage != null) {
-                    tvMessage.setTextSize(18);
+                TextView mMessageView = DialogUtils.getMessageView(helpDialog);
+                if (mMessageView != null) {
+                    mMessageView.setTextSize(18);
                 }
                 return true;
             case R.id.mi_donate:
@@ -114,11 +115,12 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected void createComingSoonDialog() {
-        AlertDialog comingSoonDialog = new AlertDialog.Builder(this).setMessage(R.string.coming_soon).create();
+        AlertDialog comingSoonDialog = new AlertDialog.Builder(this)
+                .setMessage(R.string.coming_soon).create();
         comingSoonDialog.show();
-        TextView tvMessage = DialogUtils.getMessageTextView(comingSoonDialog);
-        if (tvMessage != null) {
-            tvMessage.setTextSize(18);
+        TextView mMessageView = DialogUtils.getMessageView(comingSoonDialog);
+        if (mMessageView != null) {
+            mMessageView.setTextSize(18);
         }
     }
 

@@ -7,9 +7,9 @@ public class DensityUtils {
         return dpValue * scale + 0.5f;
     }
 
-    public static float px2dp(float pxValue) {
+    public static int px2dp(float pxValue) {
         final float scale = ApplicationUtils.getResources().getDisplayMetrics().density;
-        return pxValue / scale + 0.5f;
+        return (int) (pxValue / scale + 0.5f);
     }
 
     public static double dp2px(double dpValue) {
@@ -17,9 +17,9 @@ public class DensityUtils {
         return dpValue * scale + 0.5;
     }
 
-    public static double px2dp(double pxValue) {
+    public static int px2dp(double pxValue) {
         final float scale = ApplicationUtils.getResources().getDisplayMetrics().density;
-        return pxValue / scale + 0.5;
+        return (int) (pxValue / scale + 0.5);
     }
 
     /**
@@ -27,9 +27,9 @@ public class DensityUtils {
      * @param pxValue the px value
      * @return the sp value
      */
-    public static float px2sp(float pxValue) {
+    public static int px2sp(float pxValue) {
         final float fontScale = ApplicationUtils.getResources().getDisplayMetrics().scaledDensity;
-        return pxValue / fontScale + 0.5f;
+        return (int) (pxValue / fontScale + 0.5f);
     }
 
 
@@ -48,9 +48,9 @@ public class DensityUtils {
      * @param pxValue the px value
      * @return the sp value
      */
-    public static double px2sp(double pxValue) {
+    public static int px2sp(double pxValue) {
         final float fontScale = ApplicationUtils.getResources().getDisplayMetrics().scaledDensity;
-        return pxValue / fontScale + 0.5;
+        return (int) (pxValue / fontScale + 0.5);
     }
 
 

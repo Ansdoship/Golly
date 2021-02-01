@@ -225,11 +225,17 @@ public class Land {
 	}
 
 	public void setCellAlive(int posX, int posY) {
+		if (isCellAlive(posX, posY)) {
+			return;
+		}
 		cellMap[posX][posY].alive();
 		aliveCellCount ++;
 	}
 
 	public void setCellDie(int posX, int posY) {
+		if (isCellDead(posX, posY)) {
+			return;
+		}
 		cellMap[posX][posY].die();
 		aliveCellCount --;
 	}
