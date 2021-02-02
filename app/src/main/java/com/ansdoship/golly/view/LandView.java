@@ -36,6 +36,9 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	public static final float DRAW_SCALE_MIN = 1.0f;
 	public static final float DRAW_SCALE_MAX = 20.0f;
 
+	private Timer drawTimer;
+	private Timer iterationLandTimer;
+
 	private final ReentrantLock strokeCellLock;
 
 	private int drawFps;
@@ -139,6 +142,8 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		iterationLandTime = 0;
 		drawSum = 0;
 		iterationLandSum = 0;
+		drawTimer = new Timer();
+		iterationLandTimer = new Timer();
 	}
 
 	@Override
@@ -158,7 +163,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void render() {
-		new Timer().schedule(new TimerTask() {
+		drawTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				if (isThreadActive()) {
@@ -175,7 +180,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			}
 		}, 0, 1000 / Settings.getInstance().getDrawFpsLimit());
-		new Timer().schedule(new TimerTask() {
+		iterationLandTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				if (threadActive) {
@@ -501,8 +506,10 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void refresh() {
 		if (isThreadActive()) {
-			setThreadActive(false);
-			setThreadActive(true);
+			drawTimer.cancel();
+			iterationLandTimer.cancel();
+			drawTimer = new Timer();
+			iterationLandTimer = new Timer();
 			render();
 		}
 	}
