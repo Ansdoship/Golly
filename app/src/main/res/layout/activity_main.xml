@@ -56,10 +56,10 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:fadeScrollbars="false"
-					android:scrollbarSize="2dp"
-					android:scrollbarThumbHorizontal="@color/black"
 					android:fadingEdge="none"
-					android:overScrollMode="never" >
+					android:overScrollMode="never"
+					android:scrollbarSize="2dp"
+					android:scrollbarThumbHorizontal="@color/black">
 
 					<LinearLayout
 						android:layout_width="wrap_content"
@@ -100,6 +100,15 @@
 
 					</LinearLayout>
 				</HorizontalScrollView>
+
+				<TextView
+					style="@style/Widget.AppCompat.TextView"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_margin="7sp"
+					android:text="@string/initial_alive_probability"
+					android:textColor="@color/black"
+					android:textSize="18sp" />
 
 				<LinearLayout
 					android:layout_width="match_parent"
@@ -465,6 +474,15 @@
 
 					</LinearLayout>
 				</HorizontalScrollView>
+
+				<TextView
+					style="@style/Widget.AppCompat.TextView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_margin="7sp"
+					android:text="@string/map_scale"
+					android:textColor="@color/black"
+					android:textSize="18sp" />
 
 				<LinearLayout
 					android:layout_width="match_parent"

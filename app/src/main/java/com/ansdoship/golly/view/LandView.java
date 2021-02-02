@@ -22,6 +22,8 @@ import com.ansdoship.golly.util.DensityUtils;
 import com.ansdoship.golly.util.DrawUtils;
 import com.ansdoship.golly.util.ScreenUtils;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 @SuppressLint("ViewConstructor")
@@ -40,13 +42,16 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	private long drawTime;
 	private int drawSum;
 	private int iterationLandFps;
-	private long iterationLandTime;
+	private volatile long iterationLandTime;
 	private int iterationLandSum;
 
     private final SurfaceHolder mHolder;
-    private volatile boolean isLandIteration;
-    private volatile boolean threadActive;
-    private volatile boolean scaleMode;
+    private final ReentrantLock landIterationLock;
+    private boolean landIteration;
+	private final ReentrantLock threadActiveLock;
+    private boolean threadActive;
+	private final ReentrantLock scaleModeLock;
+    private boolean scaleMode;
 
     private final int VIEW_WIDTH;
     private final int VIEW_HEIGHT;
@@ -108,9 +113,12 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 		setKeepScreenOn(true);
-		isLandIteration = false;
-		threadActive = false;
-		scaleMode = false;
+		landIterationLock = new ReentrantLock(true);
+		stopGame();
+		threadActiveLock = new ReentrantLock(true);
+		setThreadActive(false);
+		scaleModeLock = new ReentrantLock(true);
+		setScaleMode(false);
 		cellPaint = new Paint();
 		cellPaint.setAntiAlias(false);
 		setLandSize(landWidth, landHeight);
@@ -139,38 +147,54 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-		threadActive = true;
-		new Thread(() -> {
-			while (threadActive) {
-				drawLand();
-				if (System.currentTimeMillis() - drawTime >= 1000) {
-					drawFps = drawSum + 1;
-					drawSum = 0;
-					drawTime = System.currentTimeMillis();
-				}
-				drawSum ++;
-			}
-		}).start();
-		new Thread(() -> {
-			while (threadActive) {
-				if (isLandIteration) {
-					mLand.iteration();
-					if (System.currentTimeMillis() - iterationLandTime >= 1000) {
-						iterationLandFps = iterationLandSum + 1;
-						iterationLandSum = 0;
-						iterationLandTime = System.currentTimeMillis();
-					}
-					iterationLandSum ++;
-				}
-			}
-		}).start();
+		setThreadActive(true);
+		render();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 		stopGame();
-		threadActive = false;
+		setThreadActive(false);
     }
+
+    private void render() {
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (isThreadActive()) {
+					drawLand();
+					drawSum ++;
+					if (System.currentTimeMillis() - drawTime >= 1000) {
+						drawFps = drawSum;
+						drawSum = 0;
+						drawTime = System.currentTimeMillis();
+					}
+				}
+				else {
+					cancel();
+				}
+			}
+		}, 0, 1000 / Settings.getInstance().getDrawFpsLimit());
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (threadActive) {
+					if (isLandIteration()) {
+						mLand.iteration();
+						iterationLandSum ++;
+						if (System.currentTimeMillis() - iterationLandTime >= 1000) {
+							iterationLandFps = iterationLandSum;
+							iterationLandSum = 0;
+							iterationLandTime = System.currentTimeMillis();
+						}
+					}
+				}
+				else {
+					cancel();
+				}
+			}
+		}, 0, 1000 / Settings.getInstance().getIterationLandFpsLimit());
+	}
 
     private void drawLand () {
 		if (mLand == null) {
@@ -207,7 +231,7 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
-		if (scaleMode) {
+		if (isScaleMode()) {
 			if (pointer0Changed) {
 				scaleModeRecordX = event.getX(0);
 				scaleModeRecordY = event.getY(0);
@@ -303,19 +327,25 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 	
 	public void stopGame() {
-		isLandIteration = false;
+		setLandIteration(false);
 	}
 
 	public void startGame() {
-		isLandIteration = true;
+		setLandIteration(true);
 	}
 
 	public boolean isLandIteration() {
-		return isLandIteration;
+		return landIteration;
 	}
 
 	public void setLandIteration(boolean landIteration) {
-		isLandIteration = landIteration;
+		landIterationLock.lock();
+		try {
+			this.landIteration = landIteration;
+		}
+		finally {
+			landIterationLock.unlock();
+		}
 	}
 
 	public void setCellSize(int cellSize) {
@@ -383,7 +413,13 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public void setScaleMode(boolean scaleMode) {
-		this.scaleMode = scaleMode;
+		scaleModeLock.lock();
+		try {
+			this.scaleMode = scaleMode;
+		}
+		finally {
+			scaleModeLock.unlock();
+		}
 	}
 
 	public boolean isScaleMode() {
@@ -446,6 +482,28 @@ public class LandView extends SurfaceView implements SurfaceHolder.Callback {
 			if (cacheBitmap.isRecycled()) {
 				cacheBitmap.recycle();
 			}
+		}
+	}
+
+	public boolean isThreadActive() {
+		return threadActive;
+	}
+
+	public void setThreadActive(boolean threadActive) {
+		threadActiveLock.lock();
+		try {
+			this.threadActive = threadActive;
+		}
+		finally {
+			threadActiveLock.unlock();
+		}
+	}
+
+	public void refresh() {
+		if (isThreadActive()) {
+			setThreadActive(false);
+			setThreadActive(true);
+			render();
 		}
 	}
 

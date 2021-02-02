@@ -22,7 +22,6 @@
     <string name="map_height">Map Height</string>
     <string name="iteration_map_fps">Iteration Map FPS</string>
     <string name="recenter_map">Recenter Map</string>
-    <string name="donate">Donate</string>
     <string name="info">Info</string>
     <string name="description">Description</string>
     <string name="copyright_info">Copyright © 2021 AnsdoShip Studio. All rights reserved.</string>
@@ -44,7 +43,7 @@
     <string name="open_source_info">Golly is open source. You can find the source code in GitHub.</string>
     <string name="palette_placeholder_string" translatable="false">■</string>
     <string name="palette">Palette</string>
-    <string name="version_name" translatable="false">0.9.8-indev</string>
+    <string name="version_name" translatable="false">0.9.9-alpha</string>
     <string name="story_mode">Story Mode</string>
     <string name="sandbox_mode">Sandbox Mode</string>
     <string name="survive_mode">Survive Mode</string>
@@ -58,4 +57,8 @@
     <string name="small_land">Small Land (64 * 64)</string>
     <string name="normal_land">Normal Land (128 * 128)</string>
     <string name="large_land">large Land (256 * 256)</string>
+    <string name="draw_fps_limit">Draw FPS Limit</string>
+    <string name="iteration_map_fps_limit">Iteration Map FPS Limit</string>
+    <string name="initial_alive_probability">Initial Alive Probability</string>
+    <string name="map_scale">Map Scale</string>
 </resources>

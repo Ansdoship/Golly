@@ -36,7 +36,7 @@ public class MainActivity extends BaseActivity {
 	private Button btnStart;
 	private Button btnClear;
 	private Button btnReset;
-	public TextView tvGameInfo;
+	private TextView tvGameInfo;
 	private EditText etCoordinateX;
 	private EditText etCoordinateY;
 	private Button btnAddCell;
@@ -262,6 +262,10 @@ public class MainActivity extends BaseActivity {
 					.append(mGameView.getLand().getAliveCellCount());
 			tvGameInfo.setText(gameInfoBuilder.toString());
 		});
+	}
+
+	public LandView getLandView() {
+		return mGameView;
 	}
 
 }

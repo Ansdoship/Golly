@@ -17,9 +17,4 @@
         android:icon="@drawable/ic_baseline_info_24"
         android:title="@string/info"
         app:showAsAction="withText" />
-    <item
-        android:id="@+id/mi_donate"
-        android:icon="@drawable/ic_baseline_account_balance_wallet_24"
-        android:title="@string/donate"
-        app:showAsAction="never" />
 </menu>

@@ -78,17 +78,16 @@ public class Land {
 		modifyLandLock.lock();
 		try {
 			dayCount ++;
-			Cell[][] stepCellMap;
 			// Color iteration
-			stepCellMap = new Cell[width][height];
+			Cell[][] stepColorMap = new Cell[width][height];
 			for (int x = 0; x < width; x ++) {
 				for (int y = 0; y < height; y ++) {
-					stepCellMap[x][y] = new Cell(getCellState(x, y), getStepCellColor(getCellColor(x, y), x, y));
+					stepColorMap[x][y] = new Cell(getCellState(x, y), getStepCellColor(getCellColor(x, y), x, y));
 				}
 			}
-			cellMap = stepCellMap;
+			cellMap = stepColorMap;
 			// Life iteration
-			stepCellMap = new Cell[width][height];
+			Cell[][] stepCellMap = new Cell[width][height];
 			int stepAliveCellCount = 0;
 			for (int x = 0; x < width; x ++) {
 				for (int y = 0; y < height; y ++) {
